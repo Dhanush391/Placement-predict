@@ -1,0 +1,562 @@
+{% extends "base.html" %}
+
+{% block title %}EDA & Statistical Visualizations | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-chart-pie" style="color: var(--primary-500);"></i>
+    <span>Exploratory Data Analysis (EDA)</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">Statistical Models & Visualizations</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Include Plotly.js for Rich Interactive Visualizations -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<!-- Error Alert -->
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-triangle-exclamation"></i>
+    <div>
+        <strong>Error:</strong> {{ error }}
+    </div>
+</div>
+{% endif %}
+
+<!-- ========================================================= -->
+<!-- INTERACTIVE STATISTICAL VISUALIZER CONTROL PANEL          -->
+<!-- ========================================================= -->
+<div class="card" style="border-color: rgba(99, 102, 241, 0.35);">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-sliders card-icon"></i>
+            <h3>Statistical Model & Feature Visualizer</h3>
+        </div>
+        <span class="header-badge" id="activeVizBadge">Active: Histogram (CGPA)</span>
+    </div>
+    
+    <div class="card-body">
+        <!-- Dropdowns Selector Bar -->
+        <div class="control-panel" style="margin-bottom: 1.5rem; background: rgba(15, 23, 42, 0.7);">
+            <div class="controls-group">
+                
+                <!-- Dropdown 1: Column Selector -->
+                <div class="control-item">
+                    <label class="control-label" for="columnSelector">
+                        <i class="fas fa-columns" style="color: var(--primary-500);"></i>
+                        Select Feature / Column:
+                    </label>
+                    <select id="columnSelector" class="form-select" onchange="renderSelectedPlot()">
+                        {% if columns_meta %}
+                            <optgroup label="── Numerical Features ──">
+                                {% for col in columns_meta.numerical %}
+                                    <option value="{{ col }}" {% if col == 'CGPA' %}selected{% endif %}>{{ col }} (Numerical)</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="── Categorical Features ──">
+                                {% for col in columns_meta.categorical %}
+                                    <option value="{{ col }}">{{ col }} (Categorical)</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% else %}
+                            <option value="CGPA" selected>CGPA</option>
+                            <option value="CodingTestScore">CodingTestScore</option>
+                            <option value="PlacementStatus">PlacementStatus</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <!-- Dropdown 2: Statistical Model / Chart Type -->
+                <div class="control-item">
+                    <label class="control-label" for="chartTypeSelector">
+                        <i class="fas fa-chart-line" style="color: var(--accent-emerald);"></i>
+                        Select Statistical Model / Chart:
+                    </label>
+                    <select id="chartTypeSelector" class="form-select" onchange="renderSelectedPlot()">
+                        <option value="histogram" selected>📊 Histogram (Distribution & KDE)</option>
+                        <option value="bar">📶 Bar Graph (Count Plot)</option>
+                        <option value="heatmap">🔥 Correlation Heatmap (All Features)</option>
+                        <option value="box">📦 Box Plot (Quartiles & Outliers)</option>
+                        <option value="scatter">📈 Scatter Relationship Plot (vs Target/Score)</option>
+                        <option value="violin">🎻 Violin Plot (Probability Density)</option>
+                        <option value="line">📉 Cumulative Distribution (CDF)</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Action Button -->
+            <button class="btn btn-primary" onclick="renderSelectedPlot()" style="height: 44px; align-self: flex-end;">
+                <i class="fas fa-arrows-rotate"></i>
+                <span>Refresh Plot</span>
+            </button>
+        </div>
+
+        <!-- Interactive Plotly Chart Container -->
+        <div id="edaPlotDiv" class="plot-container">
+            <div style="display: flex; align-items: center; justify-content: center; height: 450px; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem; font-size: 1.5rem;"></i> Loading Visualization...
+            </div>
+        </div>
+
+        <!-- Dynamic Statistical Metrics Summary Bar -->
+        <div class="stats-badges-container" id="statsBadges">
+            <!-- Dynamically populated via JavaScript -->
+        </div>
+
+        <!-- Dynamic Insights Commentary -->
+        <div id="insightComment" style="margin-top: 1rem; padding: 0.85rem 1.25rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-md); font-size: 0.88rem; color: #cbd5e1;">
+            <i class="fas fa-circle-info" style="color: var(--primary-500); margin-right: 0.4rem;"></i>
+            <span id="insightText">Loading insight...</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- DATASET LEVEL EDA OVERVIEW SECTION                        -->
+<!-- ========================================================= -->
+{% if eda %}
+
+<!-- Key Metrics Grid -->
+<div class="stats-grid">
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Placed Students</span>
+            <span class="stat-value">{{ "{:,}".format(eda.placed_count) }}</span>
+            <span class="stat-subtext">{{ eda.placed_pct }}% Placement Success Rate</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-user-check"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Not Placed</span>
+            <span class="stat-value">{{ "{:,}".format(eda.not_placed_count) }}</span>
+            <span class="stat-subtext">{{ eda.not_placed_pct }}% Needs Improvement</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-user-xmark"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">Average CGPA</span>
+            <span class="stat-value">{{ eda.avg_cgpa }}</span>
+            <span class="stat-subtext">Across 50k student records</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-award"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Avg Coding Score</span>
+            <span class="stat-value">{{ eda.avg_coding }}</span>
+            <span class="stat-subtext">Benchmark test score</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-code"></i>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    
+    <!-- Target Variable Distribution Card -->
+    <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-chart-pie card-icon"></i>
+                <h3>Placement Target Distribution</h3>
+            </div>
+            <span class="header-badge">Class Balance</span>
+        </div>
+        <div class="card-body">
+            <div class="dist-list">
+                <div>
+                    <div class="dist-item-header">
+                        <span style="color: #34d399;"><i class="fas fa-circle" style="font-size: 0.65rem; margin-right: 0.4rem;"></i> Placed (Class 1)</span>
+                        <strong>{{ "{:,}".format(eda.placed_count) }} ({{ eda.placed_pct }}%)</strong>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar-fill progress-placed" style="width: {{ eda.placed_pct }}%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="dist-item-header">
+                        <span style="color: #fb7185;"><i class="fas fa-circle" style="font-size: 0.65rem; margin-right: 0.4rem;"></i> Not Placed (Class 0)</span>
+                        <strong>{{ "{:,}".format(eda.not_placed_count) }} ({{ eda.not_placed_pct }}%)</strong>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar-fill progress-not-placed" style="width: {{ eda.not_placed_pct }}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Stream Distribution -->
+    <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-layer-group card-icon"></i>
+                <h3>Top Engineering Streams</h3>
+            </div>
+            <span class="header-badge">Enrollment Breakdown</span>
+        </div>
+        <div class="card-body">
+            <div class="dist-list">
+                {% for stream, count in eda.stream_dist.items() %}
+                {% set pct = (count / eda.total_records * 100) | round(1) %}
+                <div>
+                    <div class="dist-item-header">
+                        <span>{{ stream }}</span>
+                        <strong>{{ "{:,}".format(count) }} ({{ pct }}%)</strong>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar-fill" style="width: {{ pct }}%; background: linear-gradient(90deg, #6366f1, #8b5cf6);"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Numerical Feature Statistics Table -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-calculator card-icon"></i>
+            <h3>Descriptive Numerical Statistics</h3>
+        </div>
+        <span class="header-badge">Academic & Skill Predictors</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Mean</th>
+                        <th>Std Dev</th>
+                        <th>Min</th>
+                        <th>Median (50%)</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in eda.stats_table %}
+                    <tr>
+                        <td><strong style="color: #0f172a; font-weight: 700;">{{ row.feature }}</strong></td>
+                        <td>{{ row.mean }}</td>
+                        <td>{{ row.std }}</td>
+                        <td>{{ row.min }}</td>
+                        <td>{{ row.median }}</td>
+                        <td>{{ row.max }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- ========================================================= -->
+<!-- JAVASCRIPT PLOTLY INTERACTIVE ENGINE                      -->
+<!-- ========================================================= -->
+<script>
+const lightPlotlyLayout = {
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent',
+    height: 560,
+    autosize: true,
+    font: {
+        family: 'Inter, system-ui, sans-serif',
+        color: '#475569',
+        size: 13
+    },
+    margin: { t: 50, r: 30, l: 70, b: 70 },
+    xaxis: {
+        gridcolor: '#e2e8f0',
+        zerolinecolor: '#cbd5e1',
+        tickfont: { color: '#334155', size: 12, weight: 500 },
+        title: { font: { color: '#0f172a', size: 14, weight: 700 } }
+    },
+    yaxis: {
+        gridcolor: '#e2e8f0',
+        zerolinecolor: '#cbd5e1',
+        tickfont: { color: '#334155', size: 12, weight: 500 },
+        title: { font: { color: '#0f172a', size: 14, weight: 700 } }
+    },
+    legend: {
+        font: { color: '#334155', size: 12 },
+        bgcolor: 'rgba(255, 255, 255, 0.95)',
+        bordercolor: '#e2e8f0',
+        borderwidth: 1
+    },
+    hoverlabel: {
+        bgcolor: '#0f172a',
+        bordercolor: '#4f46e5',
+        font: { color: '#ffffff', family: 'Inter', size: 13 }
+    }
+};
+
+const plotlyConfig = {
+    responsive: true,
+    displayModeBar: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: ['lasso2d', 'select2d']
+};
+
+// Function to fetch and render selected plot
+async function renderSelectedPlot() {
+    const colSelect = document.getElementById('columnSelector');
+    const chartSelect = document.getElementById('chartTypeSelector');
+    const column = colSelect.value;
+    const chartType = chartSelect.value;
+    const plotDiv = document.getElementById('edaPlotDiv');
+    const badge = document.getElementById('activeVizBadge');
+    
+    badge.innerText = `Active: ${chartSelect.options[chartSelect.selectedIndex].text.split('(')[0].trim()} (${column})`;
+
+    plotDiv.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 520px; color: var(--text-muted);"><i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem; font-size: 1.5rem;"></i> Generating ${chartType}...</div>`;
+
+    try {
+        const response = await fetch(`/api/plot-data?column=${encodeURIComponent(column)}&chart_type=${encodeURIComponent(chartType)}`);
+        const result = await response.json();
+
+        if (!result.success) {
+            plotDiv.innerHTML = `<div class="alert alert-danger" style="margin: 2rem;">Failed to load plot: ${result.error}</div>`;
+            return;
+        }
+
+        const plot = result.plot;
+        let traces = [];
+        let layout = JSON.parse(JSON.stringify(lightPlotlyLayout));
+
+        // 1. HISTOGRAM / DISTRIBUTION
+        if (plot.chart_type === 'histogram') {
+            traces.push({
+                x: plot.data.sample_values,
+                type: 'histogram',
+                name: 'Distribution',
+                marker: {
+                    color: '#6366f1',
+                    line: { color: '#4f46e5', width: 1 }
+                },
+                opacity: 0.75
+            });
+
+            if (plot.data.placed_sample && plot.data.placed_sample.length > 0) {
+                traces.push({
+                    x: plot.data.placed_sample,
+                    type: 'histogram',
+                    name: 'Placed Students',
+                    marker: { color: '#10b981' },
+                    opacity: 0.6
+                });
+            }
+
+            layout.barmode = 'overlay';
+            layout.xaxis.title = column;
+            layout.yaxis.title = 'Frequency Count';
+            layout.title = { text: `Distribution & Density for ${column}`, font: { color: '#0f172a', size: 17, weight: 700 } };
+        }
+
+        // 2. BAR GRAPH / COUNT PLOT (Increased Bar Size & Rich Annotations)
+        else if (plot.chart_type === 'bar') {
+            traces.push({
+                x: plot.data.categories,
+                y: plot.data.values,
+                type: 'bar',
+                width: 0.65,
+                marker: {
+                    color: plot.data.values.map((_, idx) => {
+                        const colors = ['#4f46e5', '#0891b2', '#059669', '#d97706', '#7c3aed', '#db2777', '#2563eb'];
+                        return colors[idx % colors.length];
+                    }),
+                    line: { color: 'rgba(0,0,0,0.12)', width: 1.5 }
+                },
+                text: plot.data.percentages.map((p, idx) => `${plot.data.values[idx].toLocaleString()} (${p}%)`),
+                textposition: 'outside',
+                textfont: {
+                    size: 12,
+                    color: '#0f172a',
+                    family: 'Inter, sans-serif',
+                    weight: 600
+                },
+                cliponaxis: false
+            });
+            layout.bargap = 0.22;
+            layout.xaxis.title = { text: column, font: { color: '#0f172a', size: 14, weight: 700 } };
+            layout.yaxis.title = { text: 'Student Count', font: { color: '#0f172a', size: 14, weight: 700 } };
+            layout.title = { text: `Category Frequency Analysis: ${column}`, font: { color: '#0f172a', size: 17, weight: 700 } };
+            layout.margin.t = 70;
+            layout.margin.b = 80;
+        }
+
+        // 3. CORRELATION HEATMAP
+        else if (plot.chart_type === 'heatmap') {
+            traces.push({
+                z: plot.data.z,
+                x: plot.data.columns,
+                y: plot.data.columns,
+                type: 'heatmap',
+                colorscale: [
+                    [0, '#f8fafc'],
+                    [0.3, '#c7d2fe'],
+                    [0.6, '#818cf8'],
+                    [0.8, '#4f46e5'],
+                    [1, '#1e1b4b']
+                ],
+                hoverongaps: false
+            });
+            layout.margin.l = 120;
+            layout.margin.b = 100;
+            layout.title = { text: `Feature Correlation Heatmap Matrix`, font: { color: '#0f172a', size: 16, weight: 700 } };
+        }
+
+        // 4. BOX PLOT
+        else if (plot.chart_type === 'box') {
+            if (plot.data.placed_sample && plot.data.not_placed_sample) {
+                traces.push({
+                    y: plot.data.placed_sample,
+                    type: 'box',
+                    name: 'Placed (1)',
+                    marker: { color: '#059669' },
+                    boxpoints: 'outliers'
+                });
+                traces.push({
+                    y: plot.data.not_placed_sample,
+                    type: 'box',
+                    name: 'Not Placed (0)',
+                    marker: { color: '#e11d48' },
+                    boxpoints: 'outliers'
+                });
+            } else {
+                traces.push({
+                    y: plot.data.all_sample,
+                    type: 'box',
+                    name: column,
+                    marker: { color: '#4f46e5' },
+                    boxpoints: 'outliers'
+                });
+            }
+            layout.yaxis.title = column;
+            layout.title = { text: `Box Plot & Quartile Spread for ${column}`, font: { color: '#0f172a', size: 16, weight: 700 } };
+        }
+
+        // 5. SCATTER RELATIONSHIP PLOT
+        else if (plot.chart_type === 'scatter') {
+            traces.push({
+                x: plot.data.x,
+                y: plot.data.y,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    size: 7,
+                    color: plot.data.placement,
+                    colorscale: [
+                        [0, '#e11d48'],
+                        [1, '#059669']
+                    ],
+                    showscale: true,
+                    colorbar: {
+                        title: { text: 'Placed', font: { color: '#0f172a' } },
+                        tickvals: [0, 1],
+                        ticktext: ['No', 'Yes'],
+                        tickfont: { color: '#475569' }
+                    },
+                    opacity: 0.7
+                }
+            });
+            layout.xaxis.title = column;
+            layout.yaxis.title = plot.data.y_col;
+            layout.title = { text: `${column} vs ${plot.data.y_col} (Color: Placement Status)`, font: { color: '#0f172a', size: 16, weight: 700 } };
+        }
+
+        // 6. VIOLIN PLOT
+        else if (plot.chart_type === 'violin') {
+            if (plot.data.placed_sample && plot.data.not_placed_sample) {
+                traces.push({
+                    type: 'violin',
+                    y: plot.data.placed_sample,
+                    name: 'Placed (1)',
+                    side: 'positive',
+                    marker: { color: '#059669' },
+                    box: { visible: true },
+                    line: { color: '#059669' }
+                });
+                traces.push({
+                    type: 'violin',
+                    y: plot.data.not_placed_sample,
+                    name: 'Not Placed (0)',
+                    side: 'negative',
+                    marker: { color: '#e11d48' },
+                    box: { visible: true },
+                    line: { color: '#e11d48' }
+                });
+            }
+            layout.yaxis.title = column;
+            layout.title = { text: `Violin Density Probability Distribution: ${column}`, font: { color: '#0f172a', size: 16, weight: 700 } };
+        }
+
+        // 7. CUMULATIVE CDF
+        else if (plot.chart_type === 'line') {
+            traces.push({
+                x: plot.data.x,
+                y: plot.data.y,
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: '#0891b2', width: 3 },
+                fill: 'tozeroy',
+                fillcolor: 'rgba(8, 145, 178, 0.1)',
+                name: 'Cumulative %'
+            });
+            layout.xaxis.title = column;
+            layout.yaxis.title = 'Cumulative Percentage (%)';
+            layout.title = { text: `Empirical Cumulative Distribution Function (CDF): ${column}`, font: { color: '#0f172a', size: 16, weight: 700 } };
+        }
+
+        // Render Plotly Chart
+        plotDiv.innerHTML = '';
+        Plotly.newPlot(plotDiv, traces, layout, plotlyConfig);
+
+        // Update Statistics Badges
+        const statsBadges = document.getElementById('statsBadges');
+        statsBadges.innerHTML = '';
+        for (const [key, val] of Object.entries(plot.stats)) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'stat-badge';
+            badgeEl.innerHTML = `<span class="stat-badge-key">${key}:</span> <span class="stat-badge-val">${val}</span>`;
+            statsBadges.appendChild(badgeEl);
+        }
+
+        // Update Insight Commentary
+        document.getElementById('insightText').innerText = plot.insight;
+
+    } catch (err) {
+        plotDiv.innerHTML = `<div class="alert alert-danger" style="margin: 2rem;">Error rendering visualization: ${err.message}</div>`;
+    }
+}
+
+// Initial render on page load
+document.addEventListener('DOMContentLoaded', () => {
+    renderSelectedPlot();
+});
+</script>
+
+{% endblock %}

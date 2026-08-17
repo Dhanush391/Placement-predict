@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Data Loading | Placement Prediction System{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-database" style="color: var(--primary-500);"></i>
+    <span>Data Loading & Ingestion</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">Step 01 • Data Explorer</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Error State -->
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-triangle-exclamation"></i>
+    <div>
+        <strong>Error Loading Dataset:</strong> {{ error }}
+    </div>
+</div>
+{% endif %}
+
+{% if summary %}
+
+<!-- Dataset Overview Stat Cards -->
+<div class="stats-grid">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">Total Rows / Samples</span>
+            <span class="stat-value">{{ "{:,}".format(summary.n_rows) if summary.n_rows is number else summary.n_rows }}</span>
+            <span class="stat-subtext">Total student records in dataset</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-bars-staggered"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Total Columns / Features</span>
+            <span class="stat-value">{{ summary.n_cols }}</span>
+            <span class="stat-subtext">Attributes and target labels</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-table-columns"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Duplicate Records</span>
+            <span class="stat-value">{{ Duplicate_count if Duplicate_count is not none else 0 }}</span>
+            <span class="stat-subtext">Identical rows detected</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-clone"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Dataset Health</span>
+            <span class="stat-value">100%</span>
+            <span class="stat-subtext">Ready for Preprocessing</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-shield-heart"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Column Schema & Metadata Table -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-list-check card-icon"></i>
+            <h3>Feature Schema & Missing Values Analysis</h3>
+        </div>
+        <span class="header-badge">{{ summary.columns|length }} Columns Detected</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive scrollable-max">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#</th>
+                        <th>Column Name</th>
+                        <th>Data Type</th>
+                        <th>Missing Values</th>
+                        <th>Data Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col in summary.columns %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-family: monospace;">{{ loop.index }}</td>
+                        <td>
+                            <strong style="color: #0f172a; font-weight: 700;">{{ col }}</strong>
+                        </td>
+                        <td>
+                            <span class="type-badge type-{{ summary.dtypes[col]|lower }}">
+                                {{ summary.dtypes[col] }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set missing = summary.missing_counts[col] %}
+                            {% if missing == 0 %}
+                                <span class="missing-zero">
+                                    <i class="fas fa-check-circle"></i> 0 missing
+                                </span>
+                            {% else %}
+                                <span class="missing-warning">
+                                    <i class="fas fa-circle-exclamation"></i> {{ missing }} missing
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if missing == 0 %}
+                                <span style="color: var(--accent-emerald); font-size: 0.8rem; font-weight: 500;">
+                                    <i class="fas fa-circle-check"></i> Complete
+                                </span>
+                            {% else %}
+                                <span style="color: var(--accent-amber); font-size: 0.8rem; font-weight: 500;">
+                                    <i class="fas fa-pen-to-square"></i> Imputation Needed
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Data Preview Table -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-table card-icon"></i>
+            <h3>Dataset Preview (First 10 Rows)</h3>
+        </div>
+        <span class="header-badge">Showing 10 of {{ "{:,}".format(summary.n_rows) if summary.n_rows is number else summary.n_rows }} Rows</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive scrollable-max">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        {% for col in summary.columns %}
+                            <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.preview %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-family: monospace;">{{ loop.index }}</td>
+                        {% for col in summary.columns %}
+                            <td>{{ row[col] }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

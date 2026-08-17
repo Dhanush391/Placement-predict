@@ -1,0 +1,23 @@
+<!-- ========================================================= -->
+<!-- TOP HEADER COMPONENT                                      -->
+<!-- ========================================================= -->
+<header class="top-header">
+    <div class="header-left">
+        <div class="page-title">
+            {% block page_title %}
+                <i class="fas fa-chart-pie" style="color: var(--primary-500);"></i>
+                <span>Placement Prediction Workspace</span>
+            {% endblock %}
+        </div>
+        {% block page_badge %}
+            <span class="header-badge">Dataset v1.0 • 50k Records</span>
+        {% endblock %}
+    </div>
+
+    <div class="header-right">
+        <div class="status-pill">
+            <span class="pulse-dot"></span>
+            <span>Server Ready</span>
+        </div>
+    </div>
+</header>

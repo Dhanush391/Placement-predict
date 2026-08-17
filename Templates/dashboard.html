@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Placement Prediction System{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-th-large" style="color: var(--primary-500);"></i>
+    <span>Pipeline Dashboard</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">Overview & Status</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero">
+    <h1>Placement Prediction Platform</h1>
+    <p>
+        End-to-end Machine Learning workspace for analyzing student academic data, preprocessing features, training predictive models, and forecasting campus placement success.
+    </p>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('data_loading') }}" class="btn btn-primary">
+            <i class="fas fa-database"></i>
+            <span>Inspect Dataset</span>
+        </a>
+        <a href="#pipeline" class="btn btn-outline">
+            <i class="fas fa-project-diagram"></i>
+            <span>View ML Pipeline</span>
+        </a>
+    </div>
+</div>
+
+<!-- Quick Statistics Grid -->
+<div class="stats-grid">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">Total Student Records</span>
+            <span class="stat-value">50,000</span>
+            <span class="stat-subtext">Cleaned & Annotated Dataset</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-users"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Total Features</span>
+            <span class="stat-value">32</span>
+            <span class="stat-subtext">Academics, Skills & Scores</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-table-columns"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Pipeline Status</span>
+            <span class="stat-value">Ready</span>
+            <span class="stat-subtext">Data Loading Stage Active</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-circle-check"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Target Variable</span>
+            <span class="stat-value">PlacementStatus</span>
+            <span class="stat-subtext">Binary Classification & Salary</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-bullseye"></i>
+        </div>
+    </div>
+</div>
+
+<!-- ML Pipeline Architecture Flow -->
+<div class="card" id="pipeline">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-diagram-project card-icon"></i>
+            <h3>ML Pipeline Roadmap</h3>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="pipeline-grid">
+            
+            <!-- Step 1: Data Loading -->
+            <div class="pipeline-card" style="border-color: rgba(99, 102, 241, 0.4);">
+                <div>
+                    <div class="pipeline-card-top">
+                        <div class="pipeline-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <span class="pipeline-step-badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc;">Step 01</span>
+                    </div>
+                    <div class="pipeline-title">1. Data Loading</div>
+                    <p class="pipeline-desc">
+                        Ingest dataset, check dimensionality, column schemas, null values, and duplicate records.
+                    </p>
+                </div>
+                <a href="{{ url_for('data_loading') }}" class="btn btn-primary" style="width: 100%;">
+                    <span>Open Module</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Step 2: EDA -->
+            <div class="pipeline-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                <div>
+                    <div class="pipeline-card-top">
+                        <div class="pipeline-icon" style="color: var(--accent-emerald); background: rgba(16, 185, 129, 0.15);">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <span class="pipeline-step-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">Step 02</span>
+                    </div>
+                    <div class="pipeline-title">2. Exploratory Data Analysis</div>
+                    <p class="pipeline-desc">
+                        Analyze class balance, academic distributions, skills correlations, and descriptive statistics.
+                    </p>
+                </div>
+                <a href="{{ url_for('eda') }}" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #059669, #10b981);">
+                    <span>Open EDA</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Step 3: Preprocessing -->
+            <div class="pipeline-card">
+                <div>
+                    <div class="pipeline-card-top">
+                        <div class="pipeline-icon" style="color: var(--accent-amber); background: rgba(245, 158, 11, 0.15);">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <span class="pipeline-step-badge">Step 03</span>
+                    </div>
+                    <div class="pipeline-title">3. Preprocessing</div>
+                    <p class="pipeline-desc">
+                        Handle missing values, encode categorical variables (One-Hot / Label), and scale numerical features.
+                    </p>
+                </div>
+                <button class="btn btn-outline" style="width: 100%; opacity: 0.6; cursor: not-allowed;" disabled>
+                    <span>Coming Soon</span>
+                </button>
+            </div>
+
+            <!-- Step 4: Model Training -->
+            <div class="pipeline-card">
+                <div>
+                    <div class="pipeline-card-top">
+                        <div class="pipeline-icon" style="color: var(--accent-purple); background: rgba(139, 92, 246, 0.15);">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <span class="pipeline-step-badge">Step 04</span>
+                    </div>
+                    <div class="pipeline-title">4. Model Training</div>
+                    <p class="pipeline-desc">
+                        Train Random Forest, XGBoost, and Logistic Regression models with cross-validation & evaluation metrics.
+                    </p>
+                </div>
+                <button class="btn btn-outline" style="width: 100%; opacity: 0.6; cursor: not-allowed;" disabled>
+                    <span>Coming Soon</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,135 @@
+<!-- ========================================================= -->
+<!-- LEFT SIDEBAR COMPONENT                                    -->
+<!-- ========================================================= -->
+<aside class="sidebar">
+
+    <!-- Sidebar Branding / Logo -->
+    <div class="sidebar-header">
+        <div class="brand-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="brand-title">
+            <h2>PlacementAI</h2>
+            <span>ML Analytics Suite</span>
+        </div>
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <nav class="sidebar-nav">
+        
+        <div class="nav-group">
+            <div class="nav-group-title">Core Pipeline</div>
+            <ul class="nav-list">
+                
+                <!-- 1. Dashboard -->
+                <li class="nav-item">
+                    <a href="{{ url_for('index') }}" 
+                       class="{% if active == 'dashboard' or active == 'none' or not active %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-th-large"></i>
+                            </span>
+                            <span>Dashboard</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- 2. Data Loading -->
+                <li class="nav-item">
+                    <a href="{{ url_for('data_loading') }}" 
+                       class="{% if active == 'data-loading' or active == 'data_loading' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-database"></i>
+                            </span>
+                            <span>Data Loading</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- 3. EDA (Exploratory Data Analysis) -->
+                <li class="nav-item">
+                    <a href="{{ url_for('eda') }}" 
+                       class="{% if active == 'eda' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </span>
+                            <span>EDA</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- 4. Preprocessing (Future Module) -->
+                <li class="nav-item">
+                    <div class="nav-link-disabled">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-sliders-h"></i>
+                            </span>
+                            <span>Preprocessing</span>
+                        </div>
+                        <span class="badge-soon">Soon</span>
+                    </div>
+                </li>
+
+                <!-- 5. Model Training (Future Module) -->
+                <li class="nav-item">
+                    <div class="nav-link-disabled">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-brain"></i>
+                            </span>
+                            <span>Model Training</span>
+                        </div>
+                        <span class="badge-soon">Soon</span>
+                    </div>
+                </li>
+
+                <!-- 6. Prediction (Future Module) -->
+                <li class="nav-item">
+                    <div class="nav-link-disabled">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </span>
+                            <span>Prediction</span>
+                        </div>
+                        <span class="badge-soon">Soon</span>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Documentation & System</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <div class="nav-link-disabled">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon">
+                                <i class="fas fa-book"></i>
+                            </span>
+                            <span>Dataset Docs</span>
+                        </div>
+                        <span class="badge-soon">Docs</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </nav>
+
+    <!-- Sidebar Bottom Footer -->
+    <div class="sidebar-footer">
+        <div class="user-avatar">
+            <i class="fas fa-user-astronaut"></i>
+        </div>
+        <div class="user-info">
+            <span class="user-name">ML Admin</span>
+            <span class="user-status">Pipeline Active</span>
+        </div>
+    </div>
+
+</aside>
