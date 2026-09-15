@@ -122,3 +122,51 @@ ma = MaxAbsScaler().fit(df[["Salary Package"]])
 print("max_abs_:", ma.max_abs_)
 print("raw    :", df["Salary Package"].head().values)
 print("scaled :", ma.transform(df[["Salary Package"]])[:5].ravel())
+
+print("\n" + "=" * 70)
+print("M2 vs M3: WHEN DOES FEATURE SCALING MATTER?")
+print("=" * 70)
+print("Hypothesis: M2 Linear/Gradient Descent models are scale-sensitive.")
+print("            M3 Decision Trees are monotonic and scale-invariant.\n")
+
+# Test on numerical subset
+num_cols = ["CGPA", "AttendancePercent", "AptitudeTestScore", "CodingTestScore"]
+X_raw = df[num_cols].fillna(df[num_cols].median())
+y = df["PlacementStatus"]
+
+X_tr, X_te, y_tr, y_te = train_test_split(X_raw, y, test_size=0.2, random_state=42, stratify=y)
+
+scalers = {
+    "Raw (Unscaled)": None,
+    "StandardScaler (Z-Score)": StandardScaler(),
+    "MinMaxScaler ([0, 1])": MinMaxScaler()
+}
+
+results = []
+for s_name, sc in scalers.items():
+    if sc:
+        X_tr_s = sc.fit_transform(X_tr)
+        X_te_s = sc.transform(X_te)
+    else:
+        X_tr_s, X_te_s = X_tr.values, X_te.values
+
+    # M2 Linear Model
+    lr = LogisticRegression(max_iter=200, random_state=42)
+    lr.fit(X_tr_s, y_tr)
+    lr_acc = round(accuracy_score(y_te, lr.predict(X_te_s)), 4)
+
+    # M3 Tree Model
+    dt = DecisionTreeClassifier(max_depth=6, random_state=42)
+    dt.fit(X_tr_s, y_tr)
+    dt_acc = round(accuracy_score(y_te, dt.predict(X_te_s)), 4)
+
+    results.append({
+        "Scaler": s_name,
+        "M2 Logistic Reg Accuracy": lr_acc,
+        "M3 Decision Tree Accuracy": dt_acc,
+        "Tree Changed?": "NO (Invariant)" if len(results) > 0 and dt_acc == results[0]["M3 Decision Tree Accuracy"] else "Base"
+    })
+
+print(pd.DataFrame(results).to_string(index=False))
+print("\nTakeaway: Scaling drastically stabilizes linear models and gradient descent,")
+print("          while decision trees make identical splits regardless of scaling.")

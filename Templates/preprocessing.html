@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Feature Preprocessing & Scaling | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-sliders-h" style="color: var(--primary-500);"></i>
+    <span>Feature Preprocessing & Transformations</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M1 / M2 Preprocessing Pipeline</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Overview Banner -->
+<div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.05));">
+    <div class="card-body">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">
+            <i class="fas fa-filter" style="color: var(--primary-500); margin-right: 0.5rem;"></i>
+            Data Transformation & Leakage Prevention Layer
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1rem;">
+            Before feeding raw student data into supervised models, this pipeline transforms features into optimal mathematical representations.
+            It guarantees <strong>zero training-serving skew</strong> by encapsulating imputation, scaling, and categorical encoding inside a reusable <code>ColumnTransformer</code>.
+        </p>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <i class="fas fa-check-circle" style="color: var(--accent-emerald);"></i>
+                <span>Missing Value Imputation: Median (Numeric) & Mode (Categorical)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <i class="fas fa-check-circle" style="color: var(--accent-emerald);"></i>
+                <span>M2 Scaling: StandardScaler & MinMaxScaler</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <i class="fas fa-check-circle" style="color: var(--accent-emerald);"></i>
+                <span>Categorical Encoding: One-Hot & Ordinal Encoders</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Three Column Transformation Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- Card 1: Missing Value Imputation -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-eraser card-icon" style="color: var(--accent-rose);"></i>
+                <h3>1. Missing Value Imputation</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                Real-world student records have absent exam scores or unrecorded workshop counts. Imputation strategies prevent discarding valid student observations.
+            </p>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-primary);">Strategy Applied:</div>
+                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary);">
+                    <li><strong>Numerical features:</strong> <code>SimpleImputer(strategy='median')</code> — robust to extreme outlier scores.</li>
+                    <li><strong>Categorical features:</strong> <code>SimpleImputer(strategy='most_frequent')</code> — preserves high-frequency modes.</li>
+                </ul>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <i class="fas fa-shield-alt" style="color: var(--accent-emerald);"></i> Leakage Guard: Imputers fit strictly on the training partition and only transform the test/inference partitions.
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Feature Scaling (M2 vs M3) -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-arrows-alt-v card-icon" style="color: var(--primary-500);"></i>
+                <h3>2. Feature Scaling: M2 vs M3</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                Compares <strong>StandardScaler</strong> ($\mu=0, \sigma=1$) and <strong>MinMaxScaler</strong> ($[0, 1]$).
+            </p>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem;">
+                    <strong>M2 Linear Models / GD:</strong>
+                    <span style="color: var(--accent-rose); font-weight: 600;">Scale Sensitive!</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.6rem;">
+                    Gradient descent oscillates wildly if Attendance (range 0-100) dominates CGPA (range 0-10) by $10\times$.
+                </p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem;">
+                    <strong>M3 Tree-Based Models:</strong>
+                    <span style="color: var(--accent-emerald); font-weight: 600;">Scale Invariant</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                    Decision tree greedy splits are monotonic; $x > 7.5$ yields the identical entropy decrease whether $x$ is scaled or raw.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Categorical Encodings -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-tags card-icon" style="color: var(--accent-amber);"></i>
+                <h3>3. Categorical Encodings</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                Prevents the <em>"arithmetic trap"</em> of label encoding on nominal attributes.
+            </p>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-primary);">Encoders Deployed:</div>
+                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary);">
+                    <li><strong>One-Hot (Nominal):</strong> <code>City</code>, <code>Stream</code>, <code>Specialisation</code>. Avoids imposing fake distances (e.g. Pune - Delhi = 6).</li>
+                    <li><strong>Ordinal (Ranked):</strong> <code>CollegeTier</code> (Tier3 &lt; Tier2 &lt; Tier1), <code>CGPA_Tier</code> (Low &lt; Mid &lt; High). Preserves true monotonic hierarchies.</li>
+                </ul>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <i class="fas fa-check" style="color: var(--accent-emerald);"></i> <code>handle_unknown="ignore"</code> prevents inference crashes on unseen categories.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Interactive Transformation Comparison Table -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-table card-icon"></i>
+            <h3>Feature Transformation Sample Preview (First 5 Students)</h3>
+        </div>
+        <span class="header-badge">Live Dataset Transformation</span>
+    </div>
+    <div class="card-body">
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>StudentID</th>
+                        <th>Stream</th>
+                        <th>CollegeTier (Raw)</th>
+                        <th>CollegeTier (Ordinal Encoded)</th>
+                        <th>CGPA (Raw)</th>
+                        <th>CGPA (StandardScaled)</th>
+                        <th>CGPA (MinMaxScaled)</th>
+                        <th>Attendance (Raw)</th>
+                        <th>Attendance (StandardScaled)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in demo.raw_records %}
+                    {% set i = loop.index0 %}
+                    <tr>
+                        <td><strong>#{{ rec.StudentID }}</strong></td>
+                        <td><span class="badge" style="background: var(--primary-100); color: var(--primary-700);">{{ rec.Stream }}</span></td>
+                        <td>{{ rec.CollegeTier }}</td>
+                        <td><code>{{ 2 if rec.CollegeTier == 'Tier1' else (1 if rec.CollegeTier == 'Tier2' else 0) }}</code></td>
+                        <td><strong>{{ rec.CGPA }}</strong></td>
+                        <td><code>{{ demo.scaled_standard[i][0] }}</code></td>
+                        <td><code>{{ demo.scaled_minmax[i][0] }}</code></td>
+                        <td>{{ rec.AttendancePercent }}%</td>
+                        <td><code>{{ demo.scaled_standard[i][1] }}</code></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                Notice how <strong>StandardScaled</strong> centers around 0.0 with unit variance, while <strong>MinMaxScaled</strong> maps into the $[0, 1]$ interval.
+            </div>
+            <a href="{{ url_for('models_view') }}" class="btn btn-primary">
+                <span>Proceed to Model Training</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

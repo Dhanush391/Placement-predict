@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}ElasticNet Regression | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-network-wired" style="color: var(--primary-500);"></i>
+    <span>ElasticNet Regression (Combined L1 & L2 Regularization)</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M2: Hybrid Regularizer</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem; border-color: rgba(99, 102, 241, 0.3);">
+    <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">ElasticNet Regularized Regression</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Linearly combines the penalties of <strong>Lasso (L1)</strong> and <strong>Ridge (L2)</strong> to overcome Lasso's limitations when predictors are highly correlated.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('elasticnet_regression_view', retrain='true') }}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-rotate"></i>
+                <span>Retrain Model</span>
+            </a>
+            <a href="{{ url_for('prediction_view') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-play"></i>
+                <span>Live Prediction</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">L1 Ratio (ρ)</span>
+            <span class="stat-value">{{ results.l1_ratio }}</span>
+            <span class="stat-subtext">50% L1 (Lasso) / 50% L2 (Ridge)</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-scale-balanced"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Test R² Score</span>
+            <span class="stat-value">{{ (results.metrics.r2 * 100) | round(2) }}%</span>
+            <span class="stat-subtext">Variance explained on unseen data</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Root Mean Squared Error</span>
+            <span class="stat-value">{{ results.metrics.rmse }} LPA</span>
+            <span class="stat-subtext">MAE: {{ results.metrics.mae }} LPA</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-square-root-variable"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Zeroed Coefficients</span>
+            <span class="stat-value">{{ results.zero_count }} / {{ results.total_features }}</span>
+            <span class="stat-subtext">{{ results.sparsity_pct }}% Sparsity achieved</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-filter"></i>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-list-ol" style="color: var(--primary-500); margin-right: 0.5rem;"></i>Top Retained Predictors (ElasticNet Weights)</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: var(--bg-surface-elevated); text-align: left;">
+                            <th style="padding: 0.75rem 1rem;">Feature Name</th>
+                            <th style="padding: 0.75rem 1rem;">ElasticNet Weight β</th>
+                            <th style="padding: 0.75rem 1rem;">Weight Relative Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in results.top_coefficients %}
+                        <tr style="border-bottom: 1px solid var(--border-subtle);">
+                            <td style="padding: 0.75rem 1rem; font-weight: 500;">{{ item.feature }}</td>
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--primary-600);">
+                                {{ "%+0.4f" | format(item.coefficient) }}
+                            </td>
+                            <td style="padding: 0.75rem 1rem;">
+                                <div style="background: #f1f5f9; border-radius: 4px; height: 8px; width: 100px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+                                    <div style="background: var(--primary-500); height: 100%; width: {{ item.rel_bar }}%;"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">{{ item.rel_bar }}%</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-user-check" style="color: var(--accent-emerald); margin-right: 0.5rem;"></i>Candidate Inference</h3>
+        </div>
+        <div class="card-body">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Candidate Profile:</p>
+                <ul style="list-style: none; font-size: 0.85rem; line-height: 1.8;">
+                    <li><strong>CGPA:</strong> {{ sample_student.CGPA }}</li>
+                    <li><strong>Tier:</strong> {{ sample_student.CollegeTier }}</li>
+                    <li><strong>Coding Test:</strong> {{ sample_student.CodingTestScore }} / 100</li>
+                    <li><strong>Projects:</strong> {{ sample_student.Projects }}</li>
+                </ul>
+            </div>
+            <div style="text-align: center; padding: 1rem; border: 2px dashed var(--primary-500); border-radius: var(--radius-md); background: var(--primary-50);">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary-600); font-weight: 700;">ElasticNet Predicted Salary</span>
+                <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary-700); margin: 0.25rem 0;">{{ results.sample_prediction }} LPA</h2>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Balanced L1/L2 estimate</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

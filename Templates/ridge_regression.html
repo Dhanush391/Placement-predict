@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Ridge Regression (L2 Regularization) | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-layer-group" style="color: var(--primary-500);"></i>
+    <span>Ridge Regression & Classifier (L2 Regularization)</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M2: Regularized Linear Model</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem; border-color: rgba(99, 102, 241, 0.3);">
+    <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Ridge Regularization (Tikhonov / L2 Penalty)</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Adds an <strong>L2 penalty (α ∑ βⱼ²)</strong> to the loss function to shrink coefficients, alleviate multicollinearity, and stabilize variance.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('ridge_regression_view', retrain='true') }}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-rotate"></i>
+                <span>Retrain Model</span>
+            </a>
+            <a href="{{ url_for('prediction_view') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-play"></i>
+                <span>Live Prediction</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">Ridge Regressor R² Score</span>
+            <span class="stat-value">{{ (results.reg_metrics.r2 * 100) | round(2) }}%</span>
+            <span class="stat-subtext">Selected α = {{ results.best_alpha }}</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Regression RMSE (Salary)</span>
+            <span class="stat-value">{{ results.reg_metrics.rmse }} LPA</span>
+            <span class="stat-subtext">MAE: {{ results.reg_metrics.mae }} LPA</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-indian-rupee-sign"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Ridge Classifier Accuracy</span>
+            <span class="stat-value">{{ (results.clf_metrics.accuracy * 100) | round(2) }}%</span>
+            <span class="stat-subtext">PlacementStatus Classification</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-check-circle"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Classifier F1-Score</span>
+            <span class="stat-value">{{ (results.clf_metrics.f1 * 100) | round(2) }}%</span>
+            <span class="stat-subtext">L2 Norm ||β||₂: {{ results.reg_metrics.l2_norm }}</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-sliders" style="color: var(--primary-500); margin-right: 0.5rem;"></i>Alpha (α) Regularization Path Comparison</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: var(--bg-surface-elevated); text-align: left;">
+                            <th style="padding: 0.75rem 1rem;">Alpha (α) Penalty</th>
+                            <th style="padding: 0.75rem 1rem;">R² Score</th>
+                            <th style="padding: 0.75rem 1rem;">RMSE (LPA)</th>
+                            <th style="padding: 0.75rem 1rem;">L2 Norm ||β||₂</th>
+                            <th style="padding: 0.75rem 1rem;">Effect on Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results.alpha_path %}
+                        <tr style="border-bottom: 1px solid var(--border-subtle); {% if row.alpha == results.best_alpha %}background: var(--primary-50); font-weight: 600;{% endif %}">
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace;">{{ row.alpha }}</td>
+                            <td style="padding: 0.75rem 1rem;">{{ (row.r2 * 100) | round(2) }}%</td>
+                            <td style="padding: 0.75rem 1rem;">{{ row.rmse }} LPA</td>
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace;">{{ row.l2_norm }}</td>
+                            <td style="padding: 0.75rem 1rem;">
+                                {% if row.alpha <= 0.1 %}
+                                <span class="badge" style="background: #f1f5f9; color: var(--text-secondary);">Near-OLS Baseline</span>
+                                {% elif row.alpha == results.best_alpha %}
+                                <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald);">Optimal Balance</span>
+                                {% else %}
+                                <span class="badge" style="background: var(--accent-amber-light); color: var(--accent-amber);">Aggressive Shrinkage</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-user-check" style="color: var(--accent-emerald); margin-right: 0.5rem;"></i>Candidate Inference</h3>
+        </div>
+        <div class="card-body">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Profile Inputs:</p>
+                <ul style="list-style: none; font-size: 0.85rem; line-height: 1.8;">
+                    <li><strong>CGPA:</strong> {{ sample_student.CGPA }}</li>
+                    <li><strong>College Tier:</strong> {{ sample_student.CollegeTier }}</li>
+                    <li><strong>Coding Score:</strong> {{ sample_student.CodingTestScore }} / 100</li>
+                    <li><strong>History of Backlogs:</strong> {{ sample_student.HistoryOfBacklogs }}</li>
+                </ul>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="text-align: center; padding: 0.75rem; border-radius: var(--radius-md); background: var(--accent-emerald-light); border: 1px solid var(--accent-emerald);">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-emerald); font-weight: 700;">Placement Status</span>
+                    <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--accent-emerald); margin: 0.15rem 0;">{{ results.sample_clf_status }}</h3>
+                </div>
+                <div style="text-align: center; padding: 0.75rem; border-radius: var(--radius-md); background: var(--primary-50); border: 1px solid var(--primary-500);">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--primary-600); font-weight: 700;">Predicted Salary</span>
+                    <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--primary-700); margin: 0.15rem 0;">{{ results.sample_reg_prediction }} LPA</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

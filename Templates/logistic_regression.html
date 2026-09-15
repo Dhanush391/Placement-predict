@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Logistic Regression | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-divide" style="color: var(--primary-500);"></i>
+    <span>Logistic Regression (Binary Classification & Odds Ratios)</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M2: Supervised Classification</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem; border-color: rgba(99, 102, 241, 0.3);">
+    <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Logistic Regression Classifier</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Maps linear feature combinations through the <strong>Sigmoid Activation σ(z) = 1 / (1 + e⁻ᶻ)</strong> to predict the probability of a candidate getting placed.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('logistic_regression_view', retrain='true') }}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-rotate"></i>
+                <span>Retrain Model</span>
+            </a>
+            <a href="{{ url_for('prediction_view') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-play"></i>
+                <span>Live Prediction</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">Classification Accuracy</span>
+            <span class="stat-value">{{ (results.metrics.accuracy * 100) | round(2) }}%</span>
+            <span class="stat-subtext">Overall correct placement calls</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-bullseye"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">F1-Score (Harmonic Mean)</span>
+            <span class="stat-value">{{ (results.metrics.f1 * 100) | round(2) }}%</span>
+            <span class="stat-subtext">Precision: {{ (results.metrics.precision * 100) | round(1) }}% | Recall: {{ (results.metrics.recall * 100) | round(1) }}%</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-award"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">ROC - Area Under Curve</span>
+            <span class="stat-value">{{ results.metrics.roc_auc }}</span>
+            <span class="stat-subtext">Binary discriminative power</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-chart-area"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Log-Loss (Binary Cross-Entropy)</span>
+            <span class="stat-value">{{ results.metrics.log_loss }}</span>
+            <span class="stat-subtext">Fit duration: {{ results.fit_time }}s</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-gauge-high"></i>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-percentage" style="color: var(--primary-500); margin-right: 0.5rem;"></i>Top Placement Determinants & Odds Ratios (eᵝ)</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: var(--bg-surface-elevated); text-align: left;">
+                            <th style="padding: 0.75rem 1rem;">Feature Name</th>
+                            <th style="padding: 0.75rem 1rem;">Log-Odds (β)</th>
+                            <th style="padding: 0.75rem 1rem;">Odds Ratio (eᵝ)</th>
+                            <th style="padding: 0.75rem 1rem;">Placement Probability Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in results.top_features %}
+                        <tr style="border-bottom: 1px solid var(--border-subtle);">
+                            <td style="padding: 0.75rem 1rem; font-weight: 500;">{{ item.feature }}</td>
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: {% if item.coefficient >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                                {{ "%+0.4f" | format(item.coefficient) }}
+                            </td>
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace; font-weight: 700;">
+                                {{ item.odds_ratio }}x
+                            </td>
+                            <td style="padding: 0.75rem 1rem;">
+                                {% if item.odds_ratio > 1.0 %}
+                                <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald); font-weight: 600;">+ Multiplies Placement Odds</span>
+                                {% else %}
+                                <span class="badge" style="background: var(--accent-rose-light); color: var(--accent-rose); font-weight: 600;">- Suppresses Placement Odds</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-table-cells" style="color: var(--accent-purple); margin-right: 0.5rem;"></i>Confusion Matrix</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; text-align: center; margin-bottom: 1rem;">
+                <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 0.75rem; border-radius: var(--radius-sm);">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">True Negative (TN)</span>
+                    <strong style="font-size: 1.2rem; color: var(--text-primary);">{{ results.confusion_matrix[0][0] }}</strong>
+                </div>
+                <div style="background: var(--accent-rose-light); border: 1px solid rgba(225, 29, 72, 0.2); padding: 0.75rem; border-radius: var(--radius-sm);">
+                    <span style="font-size: 0.75rem; color: var(--accent-rose); display: block;">False Positive (FP)</span>
+                    <strong style="font-size: 1.2rem; color: var(--accent-rose);">{{ results.confusion_matrix[0][1] }}</strong>
+                </div>
+                <div style="background: var(--accent-amber-light); border: 1px solid rgba(217, 119, 6, 0.2); padding: 0.75rem; border-radius: var(--radius-sm);">
+                    <span style="font-size: 0.75rem; color: var(--accent-amber); display: block;">False Negative (FN)</span>
+                    <strong style="font-size: 1.2rem; color: var(--accent-amber);">{{ results.confusion_matrix[1][0] }}</strong>
+                </div>
+                <div style="background: var(--accent-emerald-light); border: 1px solid rgba(5, 150, 105, 0.2); padding: 0.75rem; border-radius: var(--radius-sm);">
+                    <span style="font-size: 0.75rem; color: var(--accent-emerald); display: block;">True Positive (TP)</span>
+                    <strong style="font-size: 1.2rem; color: var(--accent-emerald);">{{ results.confusion_matrix[1][1] }}</strong>
+                </div>
+            </div>
+
+            <div style="text-align: center; padding: 1rem; border: 2px dashed var(--accent-emerald); border-radius: var(--radius-md); background: var(--accent-emerald-light);">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent-emerald); font-weight: 700;">Candidate Prediction</span>
+                <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--accent-emerald); margin: 0.25rem 0;">{{ results.sample_status }}</h2>
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--accent-emerald);">Placement Probability: {{ results.sample_prob }}%</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

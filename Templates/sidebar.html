@@ -60,45 +60,147 @@
                     </a>
                 </li>
 
-                <!-- 4. Preprocessing (Future Module) -->
+                <!-- 4. Preprocessing -->
                 <li class="nav-item">
-                    <div class="nav-link-disabled">
+                    <a href="{{ url_for('preprocessing') }}" 
+                       class="{% if active == 'preprocessing' %}active{% endif %}">
                         <div class="nav-item-content">
                             <span class="nav-item-icon">
                                 <i class="fas fa-sliders-h"></i>
                             </span>
                             <span>Preprocessing</span>
                         </div>
-                        <span class="badge-soon">Soon</span>
-                    </div>
+                    </a>
                 </li>
 
-                <!-- 5. Model Training (Future Module) -->
+                <!-- 5. Model Training (M2 & M3) -->
                 <li class="nav-item">
-                    <div class="nav-link-disabled">
+                    <a href="{{ url_for('models_view') }}" 
+                       class="{% if active == 'model-training' or active == 'models' %}active{% endif %}">
                         <div class="nav-item-content">
                             <span class="nav-item-icon">
                                 <i class="fas fa-brain"></i>
                             </span>
                             <span>Model Training</span>
                         </div>
-                        <span class="badge-soon">Soon</span>
-                    </div>
+                    </a>
                 </li>
 
-                <!-- 6. Prediction (Future Module) -->
+                <!-- 6. Prediction (M1 Live Service) -->
                 <li class="nav-item">
-                    <div class="nav-link-disabled">
+                    <a href="{{ url_for('prediction_view') }}" 
+                       class="{% if active == 'predict' or active == 'prediction' %}active{% endif %}">
                         <div class="nav-item-content">
                             <span class="nav-item-icon">
                                 <i class="fas fa-chart-line"></i>
                             </span>
-                            <span>Prediction</span>
+                            <span>Live Prediction</span>
                         </div>
-                        <span class="badge-soon">Soon</span>
-                    </div>
+                    </a>
                 </li>
 
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Supervised Algorithms</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_for('linear_regression_view') }}" class="{% if active == 'linear-regression' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-chart-line"></i></span>
+                            <span>Linear Regression</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('ridge_regression_view') }}" class="{% if active == 'ridge-regression' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-layer-group"></i></span>
+                            <span>Ridge Regression</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('lasso_regression_view') }}" class="{% if active == 'lasso-regression' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-filter"></i></span>
+                            <span>Lasso Regression</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('elasticnet_regression_view') }}" class="{% if active == 'elasticnet-regression' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-network-wired"></i></span>
+                            <span>ElasticNet</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('logistic_regression_view') }}" class="{% if active == 'logistic-regression' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-divide"></i></span>
+                            <span>Logistic Regression</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('decision_tree_view') }}" class="{% if active == 'decision-tree' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-sitemap"></i></span>
+                            <span>Decision Tree</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('random_forest_view') }}" class="{% if active == 'random-forest' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-tree"></i></span>
+                            <span>Random Forest</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('adaboost_view') }}" class="{% if active == 'adaboost' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-bolt"></i></span>
+                            <span>AdaBoost</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('gradient_boosting_view') }}" class="{% if active == 'gradient-boosting' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-forward-step"></i></span>
+                            <span>Gradient Boosting</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('xgboost_view') }}" class="{% if active == 'xgboost' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-rocket"></i></span>
+                            <span>XGBoost</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('lightgbm_view') }}" class="{% if active == 'lightgbm' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-feather-pointed"></i></span>
+                            <span>LightGBM</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('naive_bayes_view') }}" class="{% if active == 'naive-bayes' %}active{% endif %}">
+                        <div class="nav-item-content">
+                            <span class="nav-item-icon"><i class="fas fa-calculator"></i></span>
+                            <span>Naive Bayes</span>
+                        </div>
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -106,15 +208,15 @@
             <div class="nav-group-title">Documentation & System</div>
             <ul class="nav-list">
                 <li class="nav-item">
-                    <div class="nav-link-disabled">
+                    <a href="{{ url_for('ml_lifecycle') }}" 
+                       class="{% if active == 'ml-lifecycle' %}active{% endif %}">
                         <div class="nav-item-content">
                             <span class="nav-item-icon">
                                 <i class="fas fa-book"></i>
                             </span>
-                            <span>Dataset Docs</span>
+                            <span>M1 ML Lifecycle</span>
                         </div>
-                        <span class="badge-soon">Docs</span>
-                    </div>
+                    </a>
                 </li>
             </ul>
         </div>

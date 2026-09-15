@@ -130,41 +130,63 @@
             </div>
 
             <!-- Step 3: Preprocessing -->
-            <div class="pipeline-card">
+            <div class="pipeline-card" style="border-color: rgba(245, 158, 11, 0.4);">
                 <div>
                     <div class="pipeline-card-top">
                         <div class="pipeline-icon" style="color: var(--accent-amber); background: rgba(245, 158, 11, 0.15);">
                             <i class="fas fa-sliders-h"></i>
                         </div>
-                        <span class="pipeline-step-badge">Step 03</span>
+                        <span class="pipeline-step-badge" style="background: rgba(245, 158, 11, 0.2); color: #fde68a;">Step 03</span>
                     </div>
                     <div class="pipeline-title">3. Preprocessing</div>
                     <p class="pipeline-desc">
-                        Handle missing values, encode categorical variables (One-Hot / Label), and scale numerical features.
+                        Handle missing values, encode categoricals (One-Hot & Ordinal), and scale features (Standard & MinMax).
                     </p>
                 </div>
-                <button class="btn btn-outline" style="width: 100%; opacity: 0.6; cursor: not-allowed;" disabled>
-                    <span>Coming Soon</span>
-                </button>
+                <a href="{{ url_for('preprocessing') }}" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #d97706, #f59e0b);">
+                    <span>Open Preprocessing</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
 
-            <!-- Step 4: Model Training -->
-            <div class="pipeline-card">
+            <!-- Step 4: Model Training (M2 & M3) -->
+            <div class="pipeline-card" style="border-color: rgba(139, 92, 246, 0.4);">
                 <div>
                     <div class="pipeline-card-top">
                         <div class="pipeline-icon" style="color: var(--accent-purple); background: rgba(139, 92, 246, 0.15);">
                             <i class="fas fa-brain"></i>
                         </div>
-                        <span class="pipeline-step-badge">Step 04</span>
+                        <span class="pipeline-step-badge" style="background: rgba(139, 92, 246, 0.2); color: #ddd6fe;">Step 04</span>
                     </div>
-                    <div class="pipeline-title">4. Model Training</div>
+                    <div class="pipeline-title">4. Model Training (M2 & M3)</div>
                     <p class="pipeline-desc">
-                        Train Random Forest, XGBoost, and Logistic Regression models with cross-validation & evaluation metrics.
+                        Benchmark M2 Linear Models (Ridge, Lasso, ElasticNet) & M3 Tree Ensembles (Random Forest, AdaBoost, GBDT).
                     </p>
                 </div>
-                <button class="btn btn-outline" style="width: 100%; opacity: 0.6; cursor: not-allowed;" disabled>
-                    <span>Coming Soon</span>
-                </button>
+                <a href="{{ url_for('models_view') }}" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #7c3aed, #8b5cf6);">
+                    <span>Open Model Training</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Step 5: Day-One Live Prediction Service -->
+            <div class="pipeline-card" style="border-color: rgba(6, 182, 212, 0.4);">
+                <div>
+                    <div class="pipeline-card-top">
+                        <div class="pipeline-icon" style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.15);">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <span class="pipeline-step-badge" style="background: rgba(6, 182, 212, 0.2); color: #a5f3fc;">Step 05</span>
+                    </div>
+                    <div class="pipeline-title">5. Day-One Prediction</div>
+                    <p class="pipeline-desc">
+                        Real-time student prediction service: forecasts Placement likelihood & Salary Package LPA with zero skew.
+                    </p>
+                </div>
+                <a href="{{ url_for('prediction_view') }}" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #0891b2, #06b6d4);">
+                    <span>Launch Predictor</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
 
         </div>

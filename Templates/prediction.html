@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}Day-One Live Prediction Service | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-chart-line" style="color: var(--primary-500);"></i>
+    <span>Day-One Live Prediction Service</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M1 Production Serving Endpoint</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- M1 Working Service Introduction -->
+<div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(16, 185, 129, 0.06));">
+    <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem;">
+                <i class="fas fa-bolt" style="color: var(--accent-amber); margin-right: 0.4rem;"></i>
+                M1: Working Prediction Service Running on Day One
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Students submit feature profiles to receive real-time inference on <strong>Placement Likelihood</strong> and <strong>Forecasted Salary Package</strong> before examining internals.
+            </p>
+        </div>
+        <!-- Quick Preset Buttons -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="loadProfile('high')">
+                <i class="fas fa-star" style="color: #f59e0b;"></i> Profile: High Achiever
+            </button>
+            <button type="button" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="loadProfile('avg')">
+                <i class="fas fa-user-graduate" style="color: var(--primary-500);"></i> Profile: Average Student
+            </button>
+            <button type="button" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="loadProfile('risk')">
+                <i class="fas fa-triangle-exclamation" style="color: var(--accent-rose);"></i> Profile: At Risk
+            </button>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.5rem; align-items: start;">
+
+    <!-- Left Column: Student Attributes Input Form -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-id-card card-icon"></i>
+                <h3>Student Profile Input Parameters</h3>
+            </div>
+            <span class="header-badge">Request Payload</span>
+        </div>
+        <div class="card-body">
+            <form id="predictionForm" onsubmit="handlePredictionSubmit(event)">
+                
+                <!-- Section 1: Academic Scores -->
+                <div style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-600); margin-bottom: 0.75rem;">
+                    1. Academic Performance (CGPA & Semesters)
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label class="control-label" for="cgpa">Overall CGPA (0 - 10)</label>
+                        <input type="number" id="cgpa" name="CGPA" step="0.01" min="4.0" max="10.0" value="8.4" required class="form-control" onchange="updateCgpaTier(this.value)">
+                    </div>
+                    <div>
+                        <label class="control-label" for="sgpa7">SGPA Semester 7</label>
+                        <input type="number" id="sgpa7" name="SGPA_Sem7" step="0.01" min="4.0" max="10.0" value="8.5" required class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="sgpa8">SGPA Semester 8</label>
+                        <input type="number" id="sgpa8" name="SGPA_Sem8" step="0.01" min="4.0" max="10.0" value="8.6" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Section 2: Entrance & Skill Test Scores -->
+                <div style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-600); margin-bottom: 0.75rem;">
+                    2. Technical & Aptitude Competencies
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label class="control-label" for="coding">Coding Test Score (0 - 100)</label>
+                        <input type="number" id="coding" name="CodingTestScore" step="0.1" min="0" max="100" value="78.5" required class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="aptitude">Aptitude Test Score (0 - 100)</label>
+                        <input type="number" id="aptitude" name="AptitudeTestScore" step="0.1" min="0" max="100" value="72.0" required class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="softskills">Soft Skills Rating (1.0 - 5.0)</label>
+                        <input type="number" id="softskills" name="SoftSkillsRating" step="0.1" min="1.0" max="5.0" value="3.8" required class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="mock">Mock Interview Score (0 - 100)</label>
+                        <input type="number" id="mock" name="MockInterviewScore" step="0.1" min="0" max="100" value="74.0" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Section 3: College, Stream & Background -->
+                <div style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-600); margin-bottom: 0.75rem;">
+                    3. College, Discipline & Background
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label class="control-label" for="collegeTier">College Tier</label>
+                        <select id="collegeTier" name="CollegeTier" class="form-select">
+                            <option value="Tier1" selected>Tier 1 (Premier)</option>
+                            <option value="Tier2">Tier 2</option>
+                            <option value="Tier3">Tier 3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="control-label" for="stream">Engineering Stream</label>
+                        <select id="stream" name="Stream" class="form-select">
+                            <option value="CS" selected>Computer Science (CS)</option>
+                            <option value="IT">Information Technology (IT)</option>
+                            <option value="ECE">Electronics (ECE)</option>
+                            <option value="EE">Electrical (EE)</option>
+                            <option value="Mechanical">Mechanical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="control-label" for="specialisation">Specialisation</label>
+                        <select id="specialisation" name="Specialisation" class="form-select">
+                            <option value="AI" selected>Artificial Intelligence (AI)</option>
+                            <option value="DataScience">Data Science</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Embedded">Embedded Systems</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="control-label" for="city">Location / City</label>
+                        <select id="city" name="City" class="form-select">
+                            <option value="Bangalore" selected>Bangalore</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Pune">Pune</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Kolkata">Kolkata</option>
+                            <option value="Jaipur">Jaipur</option>
+                            <option value="Ahmedabad">Ahmedabad</option>
+                            <option value="Kochi">Kochi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 4: Practical Experience -->
+                <div style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-600); margin-bottom: 0.75rem;">
+                    4. Projects, Internships & Risk Profile
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label class="control-label" for="internships">Internships Count</label>
+                        <input type="number" id="internships" name="Internships" min="0" max="5" value="2" class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="projects">Projects Completed</label>
+                        <input type="number" id="projects" name="Projects" min="0" max="10" value="3" class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="attendance">Attendance (%)</label>
+                        <input type="number" id="attendance" name="AttendancePercent" min="40" max="100" value="88.5" class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="backlogs">History of Backlogs?</label>
+                        <select id="backlogs" name="HistoryOfBacklogs" class="form-select">
+                            <option value="No" selected>No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="control-label" for="certifications">Certifications</label>
+                        <input type="number" id="certifications" name="Certifications" min="0" max="10" value="2" class="form-control">
+                    </div>
+                    <div>
+                        <label class="control-label" for="cgpaTier">CGPA Tier</label>
+                        <input type="text" id="cgpaTier" name="CGPA_Tier" value="High" readonly class="form-control" style="background: var(--bg-surface-elevated);">
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for full schema consistency -->
+                <input type="hidden" name="Gender" value="Male">
+                <input type="hidden" name="Hostel" value="No">
+                <input type="hidden" name="Workshops" value="2">
+                <input type="hidden" name="Publications" value="0">
+                <input type="hidden" name="ExtraCurricular" value="1">
+                <input type="hidden" name="SGPA_Sem1" id="sgpa1" value="8.0">
+                <input type="hidden" name="SGPA_Sem2" id="sgpa2" value="8.2">
+                <input type="hidden" name="SGPA_Sem3" id="sgpa3" value="8.3">
+                <input type="hidden" name="SGPA_Sem4" id="sgpa4" value="8.4">
+                <input type="hidden" name="SGPA_Sem5" id="sgpa5" value="8.5">
+                <input type="hidden" name="SGPA_Sem6" id="sgpa6" value="8.5">
+
+                <button type="submit" id="predictSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>Execute Day-One Prediction Request</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Real-Time Inference Output Display -->
+    <div>
+        
+        <!-- Live Prediction Output Card -->
+        <div class="card" id="outputCard" style="border-color: rgba(99, 102, 241, 0.4); margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <div class="card-header-title">
+                    <i class="fas fa-square-poll-vertical card-icon" style="color: var(--accent-emerald);"></i>
+                    <h3>Inference Response Result</h3>
+                </div>
+                <span class="header-badge" id="servingStatusBadge">Ready</span>
+            </div>
+            <div class="card-body">
+                
+                <!-- Placeholder when no prediction executed yet -->
+                <div id="noPredictionState" style="text-align: center; padding: 3rem 1rem;">
+                    <div style="font-size: 3rem; color: var(--primary-200); margin-bottom: 1rem;">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <h4 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.5rem;">Awaiting Student Payload</h4>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">
+                        Click <strong>"Execute Day-One Prediction Request"</strong> or choose a profile preset above to observe real-time model inference.
+                    </p>
+                </div>
+
+                <!-- Result Content Block -->
+                <div id="predictionResultBlock" style="display: none;">
+                    
+                    <!-- Status Banner -->
+                    <div id="statusBanner" style="padding: 1.25rem; border-radius: var(--radius-md); text-align: center; margin-bottom: 1.5rem;">
+                        <div id="statusIcon" style="font-size: 2.2rem; margin-bottom: 0.5rem;"></div>
+                        <h2 id="statusTitle" style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem;"></h2>
+                        <span id="statusSub" style="font-size: 0.9rem;"></span>
+                    </div>
+
+                    <!-- Dual Output Metric Cards -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Placement Likelihood</div>
+                            <div id="probValue" style="font-size: 1.8rem; font-weight: 800; color: var(--primary-600);">--</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Calibrated Probability</div>
+                        </div>
+
+                        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Predicted Salary</div>
+                            <div id="salaryValue" style="font-size: 1.8rem; font-weight: 800; color: var(--accent-emerald);">--</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Annual LPA Forecast</div>
+                        </div>
+                    </div>
+
+                    <!-- Contextual Guidance List -->
+                    <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
+                        <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-primary);">
+                            <i class="fas fa-lightbulb" style="color: var(--accent-amber);"></i> Model Explanatory Insights:
+                        </div>
+                        <ul id="insightsList" style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.6;">
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- M1: Tracing One Prediction End-to-End Box -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-title">
+                    <i class="fas fa-network-wired card-icon" style="color: var(--accent-cyan);"></i>
+                    <h3>M1: Tracing One Prediction End-to-End</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <span class="badge" style="background: var(--primary-100); color: var(--primary-700);">1. HTTP POST</span>
+                        <span>Client sends JSON payload to <code>/api/predict</code> with student academic features.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <span class="badge" style="background: var(--primary-100); color: var(--primary-700);">2. Transform</span>
+                        <span>Fitted <code>ColumnTransformer</code> standardizes numerics and one-hot encodes nominal categoricals without retraining.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <span class="badge" style="background: var(--primary-100); color: var(--primary-700);">3. Inference</span>
+                        <span>Champion models execute vectorized forward pass ($w^Tx + b$ & tree splits) in &lt;5 milliseconds.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                        <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald);">4. Response</span>
+                        <span>Returns structured JSON with probability, classification, and salary prediction.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function updateCgpaTier(val) {
+    const num = parseFloat(val);
+    const tierInput = document.getElementById('cgpaTier');
+    if (num >= 8.0) {
+        tierInput.value = 'High';
+    } else if (num >= 6.5) {
+        tierInput.value = 'Mid';
+    } else {
+        tierInput.value = 'Low';
+    }
+}
+
+function loadProfile(type) {
+    if (type === 'high') {
+        document.getElementById('cgpa').value = 9.2;
+        document.getElementById('sgpa7').value = 9.1;
+        document.getElementById('sgpa8').value = 9.4;
+        document.getElementById('coding').value = 92.0;
+        document.getElementById('aptitude').value = 88.0;
+        document.getElementById('softskills').value = 4.6;
+        document.getElementById('mock').value = 90.0;
+        document.getElementById('collegeTier').value = 'Tier1';
+        document.getElementById('stream').value = 'CS';
+        document.getElementById('specialisation').value = 'AI';
+        document.getElementById('internships').value = 3;
+        document.getElementById('projects').value = 4;
+        document.getElementById('attendance').value = 94.0;
+        document.getElementById('backlogs').value = 'No';
+        updateCgpaTier(9.2);
+    } else if (type === 'avg') {
+        document.getElementById('cgpa').value = 7.2;
+        document.getElementById('sgpa7').value = 7.1;
+        document.getElementById('sgpa8').value = 7.3;
+        document.getElementById('coding').value = 62.0;
+        document.getElementById('aptitude').value = 65.0;
+        document.getElementById('softskills').value = 3.2;
+        document.getElementById('mock').value = 60.0;
+        document.getElementById('collegeTier').value = 'Tier2';
+        document.getElementById('stream').value = 'ECE';
+        document.getElementById('specialisation').value = 'DataScience';
+        document.getElementById('internships').value = 1;
+        document.getElementById('projects').value = 2;
+        document.getElementById('attendance').value = 80.0;
+        document.getElementById('backlogs').value = 'No';
+        updateCgpaTier(7.2);
+    } else if (type === 'risk') {
+        document.getElementById('cgpa').value = 5.6;
+        document.getElementById('sgpa7').value = 5.2;
+        document.getElementById('sgpa8').value = 5.4;
+        document.getElementById('coding').value = 32.0;
+        document.getElementById('aptitude').value = 42.0;
+        document.getElementById('softskills').value = 2.0;
+        document.getElementById('mock').value = 30.0;
+        document.getElementById('collegeTier').value = 'Tier3';
+        document.getElementById('stream').value = 'Mechanical';
+        document.getElementById('specialisation').value = 'Embedded';
+        document.getElementById('internships').value = 0;
+        document.getElementById('projects').value = 1;
+        document.getElementById('attendance').value = 62.0;
+        document.getElementById('backlogs').value = 'Yes';
+        updateCgpaTier(5.6);
+    }
+}
+
+async function handlePredictionSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('predictSubmitBtn');
+    const badge = document.getElementById('servingStatusBadge');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Model Inference...';
+    badge.innerText = 'Inferring...';
+
+    const form = document.getElementById('predictionForm');
+    const formData = new FormData(form);
+    const payload = {};
+    formData.forEach((value, key) => {
+        if (!isNaN(value) && value.trim() !== '') {
+            payload[key] = parseFloat(value);
+        } else {
+            payload[key] = value;
+        }
+    });
+
+    try {
+        const response = await fetch('/api/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+            displayPredictionResults(data);
+            badge.innerText = 'Prediction Complete';
+        } else {
+            alert('Prediction error: ' + (data.error || 'Unknown error'));
+            badge.innerText = 'Error';
+        }
+    } catch (err) {
+        alert('Failed to connect to serving endpoint: ' + err);
+        badge.innerText = 'Failed';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> <span>Execute Day-One Prediction Request</span>';
+    }
+}
+
+function displayPredictionResults(data) {
+    document.getElementById('noPredictionState').style.display = 'none';
+    document.getElementById('predictionResultBlock').style.display = 'block';
+
+    const isPlaced = data.placement_code === 1;
+    const banner = document.getElementById('statusBanner');
+    const icon = document.getElementById('statusIcon');
+    const title = document.getElementById('statusTitle');
+    const sub = document.getElementById('statusSub');
+
+    if (isPlaced) {
+        banner.style.background = 'rgba(16, 185, 129, 0.12)';
+        banner.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+        banner.style.color = '#065f46';
+        icon.innerHTML = '<i class="fas fa-circle-check" style="color: #059669;"></i>';
+        title.innerText = 'HIGH CHANCE OF PLACEMENT';
+        title.style.color = '#065f46';
+        sub.innerText = `Classified as PLACED by ${data.model_used_clf}`;
+    } else {
+        banner.style.background = 'rgba(225, 29, 72, 0.1)';
+        banner.style.border = '1px solid rgba(225, 29, 72, 0.3)';
+        banner.style.color = '#9f1239';
+        icon.innerHTML = '<i class="fas fa-circle-xmark" style="color: #e11d48;"></i>';
+        title.innerText = 'AT-RISK / UNPLACED PREDICTION';
+        title.style.color = '#9f1239';
+        sub.innerText = `Requires skill reinforcement according to ${data.model_used_clf}`;
+    }
+
+    document.getElementById('probValue').innerText = `${data.placement_probability}%`;
+    document.getElementById('salaryValue').innerText = isPlaced ? `₹${data.predicted_salary_lpa} LPA` : 'N/A';
+
+    const insightsList = document.getElementById('insightsList');
+    insightsList.innerHTML = '';
+    (data.insights || []).forEach(item => {
+        const li = document.createElement('li');
+        li.innerText = item;
+        insightsList.appendChild(li);
+    });
+}
+</script>
+
+{% endblock %}

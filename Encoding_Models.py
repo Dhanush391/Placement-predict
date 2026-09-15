@@ -81,3 +81,50 @@ tbl = pd.DataFrame({"City": list(bmap), "ordinal": list(bmap.values())})
 tbl["binary"] = tbl["ordinal"].apply(lambda v: format(v, f"0{nbits}b"))
 for b in range(nbits):
     tbl[f"City_{nbits-b}"] = tbl["binary"].str[b].astype(int)
+
+print("\n" + "=" * 70)
+print("CATEGORICAL ENCODING IMPACT: M2 LINEAR vs M3 TREE MODELS")
+print("=" * 70)
+
+# Compare One-Hot vs Ordinal Encoding on predicting PlacementStatus
+y = df["PlacementStatus"]
+X_cats = df[CAT].copy().fillna("Missing")
+
+# 1. Label / Ordinal Encoded
+X_ord = pd.DataFrame()
+for c in CAT:
+    X_ord[c] = LabelEncoder().fit_transform(X_cats[c].astype(str))
+
+# 2. One-Hot Encoded
+X_ohe = pd.get_dummies(X_cats, drop_first=True)
+
+X_tr_ord, X_te_ord, y_tr, y_te = train_test_split(X_ord, y, test_size=0.2, random_state=42, stratify=y)
+X_tr_ohe, X_te_ohe, _, _ = train_test_split(X_ohe, y, test_size=0.2, random_state=42, stratify=y)
+
+enc_results = []
+
+# M2 Logistic Regression
+lr_ord = LogisticRegression(max_iter=300).fit(X_tr_ord, y_tr)
+lr_ohe = LogisticRegression(max_iter=300).fit(X_tr_ohe, y_tr)
+
+# M3 Random Forest
+rf_ord = RandomForestClassifier(n_estimators=50, max_depth=10, random_state=42).fit(X_tr_ord, y_tr)
+rf_ohe = RandomForestClassifier(n_estimators=50, max_depth=10, random_state=42).fit(X_tr_ohe, y_tr)
+
+enc_results.append({
+    "Encoding": "Ordinal / Label Encoding",
+    "Num Columns": X_ord.shape[1],
+    "M2 Logistic Reg Acc": round(accuracy_score(y_te, lr_ord.predict(X_te_ord)), 4),
+    "M3 Random Forest Acc": round(accuracy_score(y_te, rf_ord.predict(X_te_ord)), 4)
+})
+
+enc_results.append({
+    "Encoding": "One-Hot Encoding (drop_first)",
+    "Num Columns": X_ohe.shape[1],
+    "M2 Logistic Reg Acc": round(accuracy_score(y_te, lr_ohe.predict(X_te_ohe)), 4),
+    "M3 Random Forest Acc": round(accuracy_score(y_te, rf_ohe.predict(X_te_ohe)), 4)
+})
+
+print(pd.DataFrame(enc_results).to_string(index=False))
+print("\nTakeaway: One-Hot encoding avoids false numerical ordering for linear models,")
+print("          while tree ensembles can split both representations effectively.")

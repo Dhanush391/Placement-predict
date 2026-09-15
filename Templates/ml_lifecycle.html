@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}ML System Lifecycle & Architecture | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-book" style="color: var(--primary-500);"></i>
+    <span>M1: PlacementPredict as a System — The ML Lifecycle</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">Architecture & Production Design</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero" style="margin-bottom: 2rem;">
+    <h1>The Machine Learning System Lifecycle</h1>
+    <p>
+        Building a production ML system is far more than fitting a model in a notebook. 
+        It requires an orchestrated pipeline from raw ingestion to low-latency serving, robust against training-serving skew.
+    </p>
+</div>
+
+<!-- 8 Stages Flow Grid -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-diagram-project card-icon" style="color: var(--primary-500);"></i>
+            <h3>The 8 Stages of PlacementPredict Lifecycle</h3>
+        </div>
+        <span class="header-badge">End-to-End Pipeline</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #6366f1;">
+                <span class="badge" style="background: var(--primary-100); color: var(--primary-700); margin-bottom: 0.5rem;">01. Raw Data</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Raw Data Ingestion</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Ingestion of tabular campus records. Located in <code>Data/placement_predict_50k Dataset.csv</code>.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #10b981;">
+                <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald); margin-bottom: 0.5rem;">02. Cleaned</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Cleaned Dataset</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Outlier detection, duplicate checks, schema validation in <code>load_data.py</code>.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #f59e0b;">
+                <span class="badge" style="background: var(--accent-amber-light); color: var(--accent-amber); margin-bottom: 0.5rem;">03. Features</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Engineered Features</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    <code>ColumnTransformer</code> handles median imputation, StandardScaler/MinMaxScaler, and One-Hot/Ordinal encodings.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #8b5cf6;">
+                <span class="badge" style="background: var(--accent-purple-light); color: var(--accent-purple); margin-bottom: 0.5rem;">04. Splits</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Training & Test Sets</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Stratified 80/20 splitting preserves placement class balance without leakage.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #ec4899;">
+                <span class="badge" style="background: var(--accent-rose-light); color: var(--accent-rose); margin-bottom: 0.5rem;">05. Training</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Trained Estimators</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Training <strong>M2 Linear</strong> & <strong>M3 Tree</strong> algorithms in <code>supervised_models.py</code>.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #06b6d4;">
+                <span class="badge" style="background: var(--accent-cyan-light); color: var(--accent-cyan); margin-bottom: 0.5rem;">06. Artifacts</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Packaged Artifact</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Serialized production pipelines stored in <code>models/saved_models.joblib</code>.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #14b8a6;">
+                <span class="badge" style="background: #ccfbf1; color: #0f766e; margin-bottom: 0.5rem;">07. Endpoint</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Served Endpoint</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    REST inference endpoint <code>POST /api/predict</code> serving instant JSON predictions.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #64748b;">
+                <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 0.5rem;">08. Monitoring</span>
+                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Monitoring & Retraining</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Benchmark logging in <code>models/benchmark_results.json</code> with triggerable retraining.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Deep Architectural Sections -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- Training-Serving Skew & Feature Stores -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-triangle-exclamation card-icon" style="color: var(--accent-rose);"></i>
+                <h3>The Training-Serving Boundary & Skew</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                <strong>Training-Serving Skew</strong> is the discrepancy between model performance in development versus real-world production serving. It is the #1 cause of silent failures in machine learning systems.
+            </p>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.4rem;">How PlacementPredict Eliminates Skew:</div>
+                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    <li>Raw features are transformed at inference time by the <em>exact same serialized preprocessor</em> fitted on training data.</li>
+                    <li>No ad-hoc manual scaling or encoding in client web forms.</li>
+                    <li>Feature statistics ($\mu, \sigma$, categories) remain locked inside the packaged <code>joblib</code> artifact.</li>
+                </ul>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                <i class="fas fa-database" style="color: var(--primary-500);"></i> <strong>Why Feature Stores Exist:</strong> In enterprise systems (e.g. Feast, Hopsworks), feature stores unify batch feature computation for model training with ultra-low latency point lookups for online serving.
+            </p>
+        </div>
+    </div>
+
+    <!-- Machine Learning Paradigm Split & Course Scope -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-title">
+                <i class="fas fa-sitemap card-icon" style="color: var(--accent-purple);"></i>
+                <h3>ML Paradigms & Curriculum Scope</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.4rem;">Supervised vs Unsupervised vs RL:</div>
+                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    <li><strong>PlacementPredict is Supervised Learning:</strong> We learn from historical labeled records $(X, y)$ where true outcomes (Placed/Unplaced, Salary) are known.</li>
+                    <li><strong>What it is NOT:</strong> It is not Unsupervised (clustering unlabeled patterns) or Reinforcement Learning (agent receiving delayed rewards in an environment).</li>
+                </ul>
+            </div>
+
+            <div style="background: rgba(99, 102, 241, 0.06); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--primary-500);">
+                <div style="font-weight: 600; font-size: 0.85rem; color: var(--primary-700); margin-bottom: 0.4rem;">Curriculum Division of Ownership:</div>
+                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    <li><strong>This Course (ML):</strong> Classical ML, regularized linear models, tree ensembles, tabular ML engineering.</li>
+                    <li><strong>DLAC:</strong> Deep Learning architectures (MLPs, CNNs, Transformers).</li>
+                    <li><strong>GALE:</strong> Generative AI, VAEs, GANs, Diffusion models.</li>
+                    <li><strong>NLPL:</strong> Natural Language Processing, Large Language Models (LLMs).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

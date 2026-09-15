@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Linear Regression (OLS) | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-chart-line" style="color: var(--primary-500);"></i>
+    <span>Linear Regression (Ordinary Least Squares)</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M2: Supervised Regression</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem; border-color: rgba(99, 102, 241, 0.3);">
+    <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Ordinary Least Squares (OLS) Linear Regression</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Models the linear relationship between student attributes and continuous <strong>Salary Package (LPA)</strong> by minimizing the sum of squared residuals.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('linear_regression_view', retrain='true') }}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-rotate"></i>
+                <span>Retrain Model</span>
+            </a>
+            <a href="{{ url_for('prediction_view') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-play"></i>
+                <span>Live Prediction</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">R² Score (Variance Explained)</span>
+            <span class="stat-value">{{ (results.metrics.r2 * 100) | round(2) }}%</span>
+            <span class="stat-subtext">Training R²: {{ (results.metrics.train_r2 * 100) | round(2) }}%</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-bullseye"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Mean Absolute Error (MAE)</span>
+            <span class="stat-value">{{ results.metrics.mae }} LPA</span>
+            <span class="stat-subtext">Average absolute prediction deviation</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-calculator"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Root Mean Squared Error (RMSE)</span>
+            <span class="stat-value">{{ results.metrics.rmse }} LPA</span>
+            <span class="stat-subtext">MSE: {{ results.metrics.mse }}</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-square-root-variable"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Model Intercept (β₀)</span>
+            <span class="stat-value">{{ results.intercept }} LPA</span>
+            <span class="stat-subtext">Fit duration: {{ results.fit_time }}s</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-anchor"></i>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-list-ol" style="color: var(--primary-500); margin-right: 0.5rem;"></i>Top Influential Coefficients (β Weights)</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: var(--bg-surface-elevated); text-align: left;">
+                            <th style="padding: 0.75rem 1rem;">Feature Name</th>
+                            <th style="padding: 0.75rem 1rem;">Coefficient (LPA per 1σ)</th>
+                            <th style="padding: 0.75rem 1rem;">Direction / Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in results.top_coefficients %}
+                        <tr style="border-bottom: 1px solid var(--border-subtle);">
+                            <td style="padding: 0.75rem 1rem; font-weight: 500;">{{ item.feature }}</td>
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: {% if item.coefficient >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                                {{ "%+0.4f" | format(item.coefficient) }}
+                            </td>
+                            <td style="padding: 0.75rem 1rem;">
+                                {% if item.coefficient >= 0 %}
+                                <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald); font-weight: 600;">+ Positive Driver</span>
+                                {% else %}
+                                <span class="badge" style="background: var(--accent-rose-light); color: var(--accent-rose); font-weight: 600;">- Negative Driver</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-user-check" style="color: var(--accent-emerald); margin-right: 0.5rem;"></i>Sample Candidate Inference</h3>
+        </div>
+        <div class="card-body">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Profile Inputs:</p>
+                <ul style="list-style: none; font-size: 0.85rem; line-height: 1.8;">
+                    <li><strong>CGPA:</strong> {{ sample_student.CGPA }}</li>
+                    <li><strong>College Tier:</strong> {{ sample_student.CollegeTier }}</li>
+                    <li><strong>Coding Score:</strong> {{ sample_student.CodingTestScore }} / 100</li>
+                    <li><strong>Stream:</strong> {{ sample_student.Stream }}</li>
+                    <li><strong>Internships:</strong> {{ sample_student.Internships }}</li>
+                </ul>
+            </div>
+            <div style="text-align: center; padding: 1rem; border: 2px dashed var(--primary-500); border-radius: var(--radius-md); background: var(--primary-50);">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary-600); font-weight: 700; letter-spacing: 0.05em;">Predicted Salary Package</span>
+                <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary-700); margin: 0.25rem 0;">{{ results.sample_prediction }} LPA</h2>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Estimated using OLS normal equations</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

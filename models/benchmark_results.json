@@ -1,0 +1,906 @@
+{
+  "status": "success",
+  "training_timestamp": "2026-09-15 11:36:05",
+  "total_records_trained": 15000,
+  "features_count": 48,
+  "classification": {
+    "leaderboard": [
+      {
+        "name": "ElasticNet Logistic Regression",
+        "module": "M2: Linear Models",
+        "accuracy": 0.929,
+        "precision": 0.94,
+        "recall": 0.9529,
+        "f1_score": 0.9464,
+        "roc_auc": 0.9816,
+        "fit_time_sec": 0.085,
+        "confusion_matrix": [
+          [
+            907,
+            120
+          ],
+          [
+            93,
+            1880
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": "1/48 zeroed (2.1%)"
+      },
+      {
+        "name": "Logistic Regression (L2 / Ridge)",
+        "module": "M2: Linear Models",
+        "accuracy": 0.9283,
+        "precision": 0.9395,
+        "recall": 0.9524,
+        "f1_score": 0.9459,
+        "roc_auc": 0.9816,
+        "fit_time_sec": 0.075,
+        "confusion_matrix": [
+          [
+            906,
+            121
+          ],
+          [
+            94,
+            1879
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": "0/48 zeroed (0.0%)"
+      },
+      {
+        "name": "Lasso Logistic Regression (L1)",
+        "module": "M2: Linear Models",
+        "accuracy": 0.9283,
+        "precision": 0.9391,
+        "recall": 0.9529,
+        "f1_score": 0.9459,
+        "roc_auc": 0.9816,
+        "fit_time_sec": 0.509,
+        "confusion_matrix": [
+          [
+            905,
+            122
+          ],
+          [
+            93,
+            1880
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": "8/48 zeroed (16.7%)"
+      },
+      {
+        "name": "Gradient Boosted Trees (GBDT)",
+        "module": "M3: Tree-Based Models",
+        "accuracy": 0.9213,
+        "precision": 0.9297,
+        "recall": 0.9524,
+        "f1_score": 0.9409,
+        "roc_auc": 0.9803,
+        "fit_time_sec": 1.303,
+        "confusion_matrix": [
+          [
+            885,
+            142
+          ],
+          [
+            94,
+            1879
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": null
+      },
+      {
+        "name": "Random Forest (Bagging & OOB)",
+        "module": "M3: Tree-Based Models",
+        "accuracy": 0.92,
+        "precision": 0.9254,
+        "recall": 0.9554,
+        "f1_score": 0.9401,
+        "roc_auc": 0.9797,
+        "fit_time_sec": 0.544,
+        "confusion_matrix": [
+          [
+            875,
+            152
+          ],
+          [
+            88,
+            1885
+          ]
+        ],
+        "oob_score": 0.9153,
+        "sparsity": null
+      },
+      {
+        "name": "AdaBoost Classifier",
+        "module": "M3: Tree-Based Models",
+        "accuracy": 0.918,
+        "precision": 0.9311,
+        "recall": 0.9453,
+        "f1_score": 0.9381,
+        "roc_auc": 0.9779,
+        "fit_time_sec": 4.039,
+        "confusion_matrix": [
+          [
+            889,
+            138
+          ],
+          [
+            108,
+            1865
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": null
+      },
+      {
+        "name": "Decision Tree (Entropy / Info Gain)",
+        "module": "M3: Tree-Based Models",
+        "accuracy": 0.9093,
+        "precision": 0.9147,
+        "recall": 0.9508,
+        "f1_score": 0.9324,
+        "roc_auc": 0.9674,
+        "fit_time_sec": 0.161,
+        "confusion_matrix": [
+          [
+            852,
+            175
+          ],
+          [
+            97,
+            1876
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": null
+      },
+      {
+        "name": "Decision Tree (Gini Impurity)",
+        "module": "M3: Tree-Based Models",
+        "accuracy": 0.9093,
+        "precision": 0.9229,
+        "recall": 0.9407,
+        "f1_score": 0.9317,
+        "roc_auc": 0.961,
+        "fit_time_sec": 0.192,
+        "confusion_matrix": [
+          [
+            872,
+            155
+          ],
+          [
+            117,
+            1856
+          ]
+        ],
+        "oob_score": null,
+        "sparsity": null
+      }
+    ],
+    "best_model": "ElasticNet Logistic Regression",
+    "best_f1": 0.9464,
+    "roc_curves": {
+      "Logistic Regression (L2 / Ridge)": {
+        "fpr": [
+          0.0,
+          0.0049,
+          0.0117,
+          0.0175,
+          0.0243,
+          0.0321,
+          0.0399,
+          0.0487,
+          0.0594,
+          0.0652,
+          0.075,
+          0.0886,
+          0.0944,
+          0.1071,
+          0.1188,
+          0.1392,
+          0.147,
+          0.1607,
+          0.1801,
+          0.1977,
+          0.223,
+          0.2483,
+          0.2697,
+          0.3174,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.6878,
+          0.7927,
+          0.8246,
+          0.849,
+          0.8667,
+          0.8753,
+          0.886,
+          0.8946,
+          0.9062,
+          0.9143,
+          0.923,
+          0.9356,
+          0.9458,
+          0.9529,
+          0.9584,
+          0.9655,
+          0.9696,
+          0.9752,
+          0.9802,
+          0.9853,
+          0.9899,
+          0.9929,
+          0.9965,
+          1.0
+        ],
+        "auc": 0.9816
+      },
+      "Lasso Logistic Regression (L1)": {
+        "fpr": [
+          0.0,
+          0.0058,
+          0.0117,
+          0.0204,
+          0.0292,
+          0.0351,
+          0.0448,
+          0.0584,
+          0.0721,
+          0.0808,
+          0.0915,
+          0.1003,
+          0.1091,
+          0.1207,
+          0.1305,
+          0.1422,
+          0.1538,
+          0.1675,
+          0.1821,
+          0.1986,
+          0.2191,
+          0.2395,
+          0.2668,
+          0.3194,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.6918,
+          0.7988,
+          0.8312,
+          0.8616,
+          0.8728,
+          0.8839,
+          0.8951,
+          0.9113,
+          0.9199,
+          0.9265,
+          0.9382,
+          0.9463,
+          0.9529,
+          0.9564,
+          0.963,
+          0.9665,
+          0.9711,
+          0.9752,
+          0.9802,
+          0.9838,
+          0.9883,
+          0.9929,
+          0.9965,
+          1.0
+        ],
+        "auc": 0.9816
+      },
+      "ElasticNet Logistic Regression": {
+        "fpr": [
+          0.0,
+          0.0058,
+          0.0117,
+          0.0204,
+          0.0263,
+          0.036,
+          0.0438,
+          0.0545,
+          0.0623,
+          0.073,
+          0.0808,
+          0.0896,
+          0.0993,
+          0.1081,
+          0.1159,
+          0.1353,
+          0.1431,
+          0.1616,
+          0.1801,
+          0.2025,
+          0.2191,
+          0.2434,
+          0.261,
+          0.3204,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.6918,
+          0.7993,
+          0.8246,
+          0.8576,
+          0.8723,
+          0.8829,
+          0.8895,
+          0.9037,
+          0.9123,
+          0.9189,
+          0.925,
+          0.9382,
+          0.9458,
+          0.9529,
+          0.9564,
+          0.9635,
+          0.9691,
+          0.9742,
+          0.9797,
+          0.9843,
+          0.9883,
+          0.9919,
+          0.9965,
+          1.0
+        ],
+        "auc": 0.9816
+      },
+      "Decision Tree (Gini Impurity)": {
+        "fpr": [
+          0.0,
+          0.0195,
+          0.0253,
+          0.0321,
+          0.0341,
+          0.0389,
+          0.0604,
+          0.0672,
+          0.0837,
+          0.0867,
+          0.0993,
+          0.1344,
+          0.148,
+          0.1509,
+          0.1646,
+          0.1772,
+          0.2084,
+          0.2463,
+          0.2795,
+          0.2941,
+          0.3213,
+          0.3398,
+          0.3778,
+          0.4002,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.5484,
+          0.7111,
+          0.7826,
+          0.7866,
+          0.7998,
+          0.849,
+          0.852,
+          0.8865,
+          0.8946,
+          0.9103,
+          0.9275,
+          0.9366,
+          0.9402,
+          0.9458,
+          0.9483,
+          0.9559,
+          0.9681,
+          0.9767,
+          0.9823,
+          0.9888,
+          0.9899,
+          0.9919,
+          0.9944,
+          1.0
+        ],
+        "auc": 0.961
+      },
+      "Decision Tree (Entropy / Info Gain)": {
+        "fpr": [
+          0.0,
+          0.0127,
+          0.0156,
+          0.0185,
+          0.0234,
+          0.0273,
+          0.0604,
+          0.0613,
+          0.0769,
+          0.0867,
+          0.1071,
+          0.1607,
+          0.1704,
+          0.2317,
+          0.2502,
+          0.2541,
+          0.259,
+          0.2687,
+          0.2804,
+          0.3145,
+          0.3418,
+          0.3564,
+          0.3651,
+          0.3807,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.6858,
+          0.7111,
+          0.7516,
+          0.8008,
+          0.8155,
+          0.8596,
+          0.8677,
+          0.8865,
+          0.892,
+          0.9017,
+          0.9468,
+          0.9508,
+          0.9711,
+          0.9742,
+          0.9787,
+          0.9807,
+          0.9828,
+          0.9838,
+          0.9883,
+          0.9904,
+          0.9944,
+          0.9959,
+          0.9965,
+          1.0
+        ],
+        "auc": 0.9674
+      },
+      "Random Forest (Bagging & OOB)": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.001,
+          0.0107,
+          0.0185,
+          0.0273,
+          0.036,
+          0.0467,
+          0.0584,
+          0.0691,
+          0.0808,
+          0.1081,
+          0.1276,
+          0.1412,
+          0.1577,
+          0.1743,
+          0.2006,
+          0.2201,
+          0.2697,
+          0.3048,
+          0.3496,
+          0.7352,
+          0.7877,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.3218,
+          0.3512,
+          0.5971,
+          0.7734,
+          0.8256,
+          0.8515,
+          0.8677,
+          0.8804,
+          0.8961,
+          0.9027,
+          0.9159,
+          0.928,
+          0.9361,
+          0.9483,
+          0.963,
+          0.9701,
+          0.9772,
+          0.9823,
+          0.9873,
+          0.9929,
+          0.9985,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "auc": 0.9797
+      },
+      "AdaBoost Classifier": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.001,
+          0.0019,
+          0.0058,
+          0.0127,
+          0.0243,
+          0.0458,
+          0.0721,
+          0.111,
+          0.1509,
+          0.1947,
+          0.2463,
+          0.3213,
+          0.4284,
+          0.555,
+          0.703,
+          0.8199,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.1105,
+          0.1647,
+          0.2271,
+          0.2909,
+          0.3523,
+          0.4268,
+          0.4942,
+          0.5626,
+          0.6346,
+          0.7035,
+          0.7663,
+          0.8282,
+          0.8692,
+          0.9042,
+          0.9306,
+          0.9503,
+          0.9686,
+          0.9833,
+          0.9939,
+          0.9995,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "auc": 0.9779
+      },
+      "Gradient Boosted Trees (GBDT)": {
+        "fpr": [
+          0.0,
+          0.001,
+          0.0078,
+          0.0136,
+          0.0214,
+          0.0282,
+          0.036,
+          0.0419,
+          0.0536,
+          0.0633,
+          0.075,
+          0.0867,
+          0.1022,
+          0.1149,
+          0.1256,
+          0.1363,
+          0.149,
+          0.1597,
+          0.1753,
+          0.1908,
+          0.2084,
+          0.2434,
+          0.2726,
+          0.3155,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.5545,
+          0.7121,
+          0.7892,
+          0.8297,
+          0.853,
+          0.8647,
+          0.8794,
+          0.8925,
+          0.9047,
+          0.9159,
+          0.923,
+          0.9321,
+          0.9392,
+          0.9453,
+          0.9518,
+          0.9569,
+          0.963,
+          0.9706,
+          0.9757,
+          0.9818,
+          0.9883,
+          0.9914,
+          0.9954,
+          1.0
+        ],
+        "auc": 0.9803
+      }
+    }
+  },
+  "regression": {
+    "leaderboard": [
+      {
+        "name": "Random Forest Regressor",
+        "module": "M3: Tree-Based Models",
+        "mae": 0.592,
+        "rmse": 1.014,
+        "r2_score": 0.9783,
+        "fit_time_sec": 0.976
+      },
+      {
+        "name": "Gradient Boosted Regressor",
+        "module": "M3: Tree-Based Models",
+        "mae": 0.638,
+        "rmse": 1.028,
+        "r2_score": 0.9777,
+        "fit_time_sec": 1.77
+      },
+      {
+        "name": "Decision Tree Regressor",
+        "module": "M3: Tree-Based Models",
+        "mae": 0.613,
+        "rmse": 1.06,
+        "r2_score": 0.9763,
+        "fit_time_sec": 0.102
+      },
+      {
+        "name": "AdaBoost Regressor",
+        "module": "M3: Tree-Based Models",
+        "mae": 1.234,
+        "rmse": 1.669,
+        "r2_score": 0.9413,
+        "fit_time_sec": 0.423
+      },
+      {
+        "name": "Linear Regression (OLS)",
+        "module": "M2: Linear Models",
+        "mae": 2.14,
+        "rmse": 2.487,
+        "r2_score": 0.8696,
+        "fit_time_sec": 0.044
+      },
+      {
+        "name": "Ridge Regression (L2)",
+        "module": "M2: Linear Models",
+        "mae": 2.14,
+        "rmse": 2.487,
+        "r2_score": 0.8696,
+        "fit_time_sec": 0.012
+      },
+      {
+        "name": "Lasso Regression (L1)",
+        "module": "M2: Linear Models",
+        "mae": 2.144,
+        "rmse": 2.487,
+        "r2_score": 0.8696,
+        "fit_time_sec": 0.039
+      },
+      {
+        "name": "ElasticNet Regression",
+        "module": "M2: Linear Models",
+        "mae": 2.183,
+        "rmse": 2.532,
+        "r2_score": 0.8648,
+        "fit_time_sec": 0.066
+      }
+    ],
+    "best_model": "Random Forest Regressor",
+    "best_r2": 0.9783
+  },
+  "m2_coefficients": [
+    {
+      "feature": "CGPA",
+      "coefficient": -2.2655,
+      "odds_ratio": 0.1038
+    },
+    {
+      "feature": "HistoryOfBacklogs_No",
+      "coefficient": 1.3337,
+      "odds_ratio": 3.795
+    },
+    {
+      "feature": "SoftSkillsRating",
+      "coefficient": 1.132,
+      "odds_ratio": 3.1017
+    },
+    {
+      "feature": "Internships",
+      "coefficient": 1.0913,
+      "odds_ratio": 2.9782
+    },
+    {
+      "feature": "SGPA_Sem6",
+      "coefficient": 0.945,
+      "odds_ratio": 2.5728
+    },
+    {
+      "feature": "HistoryOfBacklogs_Yes",
+      "coefficient": -0.9172,
+      "odds_ratio": 0.3996
+    },
+    {
+      "feature": "Projects",
+      "coefficient": 0.8035,
+      "odds_ratio": 2.2333
+    },
+    {
+      "feature": "SGPA_Sem5",
+      "coefficient": 0.7639,
+      "odds_ratio": 2.1466
+    },
+    {
+      "feature": "SGPA_Sem8",
+      "coefficient": 0.7198,
+      "odds_ratio": 2.054
+    },
+    {
+      "feature": "SGPA_Sem7",
+      "coefficient": 0.635,
+      "odds_ratio": 1.8871
+    },
+    {
+      "feature": "AptitudeTestScore",
+      "coefficient": 0.6085,
+      "odds_ratio": 1.8376
+    },
+    {
+      "feature": "SGPA_Sem1",
+      "coefficient": 0.5833,
+      "odds_ratio": 1.7919
+    },
+    {
+      "feature": "SGPA_Sem3",
+      "coefficient": 0.4653,
+      "odds_ratio": 1.5926
+    },
+    {
+      "feature": "CGPA_Tier",
+      "coefficient": 0.4546,
+      "odds_ratio": 1.5756
+    },
+    {
+      "feature": "SGPA_Sem2",
+      "coefficient": 0.4296,
+      "odds_ratio": 1.5367
+    }
+  ],
+  "m3_feature_importances": [
+    {
+      "feature": "SGPA_Sem6",
+      "importance": 0.102
+    },
+    {
+      "feature": "SGPA_Sem8",
+      "importance": 0.0975
+    },
+    {
+      "feature": "SGPA_Sem7",
+      "importance": 0.0708
+    },
+    {
+      "feature": "SGPA_Sem3",
+      "importance": 0.0672
+    },
+    {
+      "feature": "Projects",
+      "importance": 0.0638
+    },
+    {
+      "feature": "MockInterviewScore",
+      "importance": 0.0627
+    },
+    {
+      "feature": "CGPA_Tier",
+      "importance": 0.0579
+    },
+    {
+      "feature": "SGPA_Sem4",
+      "importance": 0.0544
+    },
+    {
+      "feature": "CGPA",
+      "importance": 0.0467
+    },
+    {
+      "feature": "SoftSkillsRating",
+      "importance": 0.0464
+    },
+    {
+      "feature": "SGPA_Sem5",
+      "importance": 0.0443
+    },
+    {
+      "feature": "SGPA_Sem1",
+      "importance": 0.0385
+    },
+    {
+      "feature": "Internships",
+      "importance": 0.0384
+    },
+    {
+      "feature": "CodingTestScore",
+      "importance": 0.036
+    },
+    {
+      "feature": "SGPA_Sem2",
+      "importance": 0.0359
+    }
+  ],
+  "head_to_head": {
+    "linear_baseline": {
+      "name": "Logistic Regression (L2 / Ridge)",
+      "module": "M2: Linear Models",
+      "accuracy": 0.9283,
+      "precision": 0.9395,
+      "recall": 0.9524,
+      "f1_score": 0.9459,
+      "roc_auc": 0.9816,
+      "fit_time_sec": 0.075,
+      "confusion_matrix": [
+        [
+          906,
+          121
+        ],
+        [
+          94,
+          1879
+        ]
+      ],
+      "oob_score": null,
+      "sparsity": "0/48 zeroed (0.0%)"
+    },
+    "tree_champion": {
+      "name": "Gradient Boosted Trees (GBDT)",
+      "module": "M3: Tree-Based Models",
+      "accuracy": 0.9213,
+      "precision": 0.9297,
+      "recall": 0.9524,
+      "f1_score": 0.9409,
+      "roc_auc": 0.9803,
+      "fit_time_sec": 1.303,
+      "confusion_matrix": [
+        [
+          885,
+          142
+        ],
+        [
+          94,
+          1879
+        ]
+      ],
+      "oob_score": null,
+      "sparsity": null
+    },
+    "accuracy_delta": -0.007,
+    "f1_delta": -0.005,
+    "auc_delta": -0.0013,
+    "speed_factor": 17.35,
+    "verdict": "Tree-based ensembles (Gradient Boosting) outperform Linear baselines by capturing complex non-linear feature interactions (e.g. CGPA \u00d7 Coding Score) without manual interaction engineering."
+  }
+}

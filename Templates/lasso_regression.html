@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Lasso Regression (L1 Regularization) | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-filter" style="color: var(--primary-500);"></i>
+    <span>Lasso Regression (L1 Regularization & Feature Sparsity)</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge">M2: Sparse Feature Selection</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem; border-color: rgba(99, 102, 241, 0.3);">
+    <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Lasso (Least Absolute Shrinkage and Selection Operator)</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Employs an <strong>L1 penalty (α ∑ |βⱼ|)</strong> which drives uninformative feature coefficients exactly to zero, performing intrinsic automated feature selection.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('lasso_regression_view', retrain='true') }}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-rotate"></i>
+                <span>Retrain Model</span>
+            </a>
+            <a href="{{ url_for('prediction_view') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-play"></i>
+                <span>Live Prediction</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+    <div class="stat-card theme-indigo">
+        <div class="stat-info">
+            <span class="stat-label">Model Sparsity Ratio</span>
+            <span class="stat-value">{{ results.zero_count }} / {{ results.total_features }}</span>
+            <span class="stat-subtext">{{ results.sparsity_pct }}% of feature weights driven to zero</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-scissors"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-emerald">
+        <div class="stat-info">
+            <span class="stat-label">Retained Active Features</span>
+            <span class="stat-value">{{ results.active_count }} Features</span>
+            <span class="stat-subtext">Selected predictive determinants</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-check-double"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-purple">
+        <div class="stat-info">
+            <span class="stat-label">Test R² Score</span>
+            <span class="stat-value">{{ (results.metrics.r2 * 100) | round(2) }}%</span>
+            <span class="stat-subtext">Maintains high predictive accuracy</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-chart-pie"></i>
+        </div>
+    </div>
+
+    <div class="stat-card theme-amber">
+        <div class="stat-info">
+            <span class="stat-label">Test RMSE (Salary)</span>
+            <span class="stat-value">{{ results.metrics.rmse }} LPA</span>
+            <span class="stat-subtext">MAE: {{ results.metrics.mae }} LPA</span>
+        </div>
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-calculator"></i>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-list-check" style="color: var(--primary-500); margin-right: 0.5rem;"></i>Lasso Feature Selection Status</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: var(--bg-surface-elevated); text-align: left;">
+                            <th style="padding: 0.75rem 1rem;">Feature</th>
+                            <th style="padding: 0.75rem 1rem;">Coefficient β</th>
+                            <th style="padding: 0.75rem 1rem;">L1 Selection Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in results.feature_status %}
+                        <tr style="border-bottom: 1px solid var(--border-subtle);">
+                            <td style="padding: 0.75rem 1rem; font-weight: 500;">{{ item.feature }}</td>
+                            <td style="padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: {% if item.coefficient != 0 %}var(--primary-600){% else %}var(--text-muted){% endif %};">
+                                {{ "%+0.4f" | format(item.coefficient) }}
+                            </td>
+                            <td style="padding: 0.75rem 1rem;">
+                                {% if item.coefficient != 0 %}
+                                <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald); font-weight: 600;"><i class="fas fa-check"></i> Retained</span>
+                                {% else %}
+                                <span class="badge" style="background: #f1f5f9; color: var(--text-muted); font-weight: 500;"><i class="fas fa-times"></i> Zeroed Out</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1rem 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 600;"><i class="fas fa-user-check" style="color: var(--accent-emerald); margin-right: 0.5rem;"></i>Sample Candidate Inference</h3>
+        </div>
+        <div class="card-body">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Candidate Profile:</p>
+                <ul style="list-style: none; font-size: 0.85rem; line-height: 1.8;">
+                    <li><strong>CGPA:</strong> {{ sample_student.CGPA }}</li>
+                    <li><strong>College Tier:</strong> {{ sample_student.CollegeTier }}</li>
+                    <li><strong>Coding Test:</strong> {{ sample_student.CodingTestScore }} / 100</li>
+                    <li><strong>Active Predictors:</strong> {{ results.active_count }}</li>
+                </ul>
+            </div>
+            <div style="text-align: center; padding: 1rem; border: 2px dashed var(--primary-500); border-radius: var(--radius-md); background: var(--primary-50);">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary-600); font-weight: 700;">Lasso Predicted Salary</span>
+                <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary-700); margin: 0.25rem 0;">{{ results.sample_prediction }} LPA</h2>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Computed only with non-zero features</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
