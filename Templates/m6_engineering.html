@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}M6: ML Engineering & Production | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-server" style="color: var(--primary-500);"></i>
+    <span>M6: ML Engineering — From Notebook to Production</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+        <i class="fas fa-gears"></i> MLOps, Feature Store, Drift & Serving
+    </span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero" style="margin-bottom: 2rem;">
+    <h1>ML Engineering, Serving Architecture & MLOps In Production</h1>
+    <p>
+        Closing the gap between a Jupyter notebook experiment and a resilient, monitored production microservice.
+        Explore Feast-style offline/online feature stores, automated training-serving skew auditing,
+        versioned model registry artifacts, and real-time production telemetry with KS/PSI data drift monitoring.
+    </p>
+    <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+        <a href="#production-monitoring" class="btn btn-primary" style="text-decoration: none;">
+            <i class="fas fa-chart-line"></i> View Production Drift Monitor
+        </a>
+        <a href="#skew-auditor" class="btn btn-secondary" style="text-decoration: none;">
+            <i class="fas fa-shield-halved"></i> Audit Training-Serving Skew
+        </a>
+        <a href="#model-registry" class="btn btn-secondary" style="text-decoration: none;">
+            <i class="fas fa-box-archive"></i> Inspect Model Registry
+        </a>
+    </div>
+</div>
+
+<!-- Section 1: The Notebook-to-Production Gap & Engineering Rituals -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-code-merge card-icon" style="color: var(--accent-amber);"></i>
+            <h3>The Notebook-to-Production Gap: Code Smells & Engineering Rituals</h3>
+        </div>
+        <span class="header-badge">Production Discipline</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Notebook Anti-Pattern / Smell</th>
+                        <th>Production Failure Mechanism</th>
+                        <th>Engineering Ritual That Closes The Gap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for smell in m6_data.notebook_to_production_gap.smells %}
+                    <tr>
+                        <td style="color: #ef4444; font-weight: 600;"><i class="fas fa-bug"></i> {{ smell.smell }}</td>
+                        <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ smell.problem }}</td>
+                        <td style="color: #10b981; font-weight: 600; font-size: 0.85rem;"><i class="fas fa-check"></i> {{ smell.ritual }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Section 2: Feature Store (Feast Concept: Online vs Offline) -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-database card-icon" style="color: #6366f1;"></i>
+            <h3>Feature Engineering at Scale: Feature Store (Feast Architecture)</h3>
+        </div>
+        <span class="header-badge">Online / Offline Store</span>
+    </div>
+    <div class="card-body">
+        
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            {{ m6_data.feature_store.concept }} Eliminates feature calculation redundancy and prevents temporal data leakage.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Online Store -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1rem;">Online Store (Low-Latency Entity Lookup)</h4>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">
+                        {{ m6_data.feature_store.online_lookup_sample.lookup_latency_ms }} ms Lookup
+                    </span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.75rem;">
+                    Key-Value Store: Redis / DynamoDB backing live HTTP inference requests.
+                </div>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-family: monospace;">
+                    Entity: StudentID={{ m6_data.feature_store.online_lookup_sample.features.student_id }}<br>
+                    CGPA: {{ m6_data.feature_store.online_lookup_sample.features.CGPA }} | Attendance: {{ m6_data.feature_store.online_lookup_sample.features.AttendancePercent }}%<br>
+                    CodingScore: {{ m6_data.feature_store.online_lookup_sample.features.CodingTestScore }} | Internships: {{ m6_data.feature_store.online_lookup_sample.features.Internships }}<br>
+                    Feature As-Of Timestamp: {{ m6_data.feature_store.online_lookup_sample.features.feature_timestamp }}
+                </div>
+            </div>
+
+            <!-- Offline Store -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #6366f1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1rem;">Offline Store (Point-in-Time Correctness)</h4>
+                    <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">Batch Lakehouse</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.75rem;">
+                    Parquet / Snowflake storage joining entity time-travel snapshots to guarantee no future leakage.
+                </div>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-family: monospace;">
+                    Historical records queryable with point-in-time AS OF timestamp joins, ensuring placement status labels match features valid at campus drive time.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 3: Training-Serving Skew Auditor -->
+<div class="card" id="skew-auditor" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-shield-halved card-icon" style="color: #ef4444;"></i>
+            <h3>Automated Training-Serving Skew Detector</h3>
+        </div>
+        <span class="header-badge">Schema & Data Integrity</span>
+    </div>
+    <div class="card-body">
+        
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Automatically intercepts live inference requests, auditing feature names, types, numerical ranges, and categorical values against training schema constraints.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Clean Payload Audit -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 0.95rem; color: #10b981;">Valid Candidate Request</h4>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">0 Anomalies</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    {{ m6_data.training_serving_skew.clean_payload_audit.status }}
+                </p>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">
+                    Features match training range: CGPA [4.0, 10.0], Tier in allowed categories, attendance positive float.
+                </div>
+            </div>
+
+            <!-- Skewed Payload Audit -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #ef4444;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 0.95rem; color: #ef4444;">Corrupted / Skewed Request</h4>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">
+                        {{ m6_data.training_serving_skew.skewed_payload_audit.anomaly_count }} Anomalies Flagged
+                    </span>
+                </div>
+                <p style="font-size: 0.85rem; color: #ef4444; font-weight: 600; margin-bottom: 0.5rem;">
+                    {{ m6_data.training_serving_skew.skewed_payload_audit.status }}
+                </p>
+                <ul style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; padding-left: 1.2rem; line-height: 1.5;">
+                    {% for an in m6_data.training_serving_skew.skewed_payload_audit.anomalies %}
+                    <li><strong>{{ an.feature }}:</strong> {{ an.issue }} <br><span style="color: var(--primary-600);">Resolution: {{ an.resolution }}</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 4: Production Telemetry & Data Drift Monitoring -->
+<div class="card" id="production-monitoring" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-tower-broadcast card-icon" style="color: var(--primary-500);"></i>
+            <h3>Production Monitoring: Latency, Throughput & Data Drift (KS & PSI)</h3>
+        </div>
+        <span class="header-badge">Live Observability</span>
+    </div>
+    <div class="card-body">
+        
+        <!-- Live Status Alert -->
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid {% if m6_data.production_monitoring.alert_status.trigger_retraining %}#ef4444{% else %}#10b981{% endif %};">
+            <div>
+                <strong>Monitoring Status:</strong> {{ m6_data.production_monitoring.alert_status.action }}<br>
+                <small style="color: var(--text-secondary);">Traffic: {{ m6_data.production_monitoring.traffic_monitored_requests }} requests | Throughput: {{ m6_data.production_monitoring.throughput_qps }} QPS | Scenario: {{ m6_data.production_monitoring.scenario_description }}</small>
+            </div>
+            <a href="{{ url_for('m6_engineering_view', scenario='market_downturn' if m6_data.production_monitoring.scenario == 'normal' else 'normal') }}" class="btn btn-secondary" style="font-size: 0.82rem; text-decoration: none;">
+                <i class="fas fa-arrows-rotate"></i> Toggle Scenario: {% if m6_data.production_monitoring.scenario == 'normal' %}Simulate Market Downturn Drift{% else %}Simulate Normal Campus Drive{% endif %}
+            </a>
+        </div>
+
+        <!-- Latency Metrics -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Latency Percentiles vs SLA:</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">p50 Median Latency</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #10b981;">{{ m6_data.production_monitoring.latency_metrics_ms.p50_median }} ms</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">p95 Latency</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #6366f1;">{{ m6_data.production_monitoring.latency_metrics_ms.p95 }} ms</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">p99 Tail Latency</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: {% if m6_data.production_monitoring.latency_metrics_ms.sla_compliant %}#10b981{% else %}#ef4444{% endif %};">
+                    {{ m6_data.production_monitoring.latency_metrics_ms.p99_tail }} ms
+                </h3>
+                <small style="color: var(--text-tertiary);">SLA Target: &le; {{ m6_data.production_monitoring.latency_metrics_ms.sla_target_ms }} ms</small>
+            </div>
+        </div>
+
+        <!-- Data Drift Table (KS & PSI) -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Feature Distribution Drift Metrics:</h4>
+        <div class="table-responsive" style="margin-bottom: 1rem;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Monitored Feature</th>
+                        <th>KS Statistic</th>
+                        <th>KS p-value</th>
+                        <th>Population Stability Index (PSI)</th>
+                        <th>Drift Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CGPA Feature</strong></td>
+                        <td>{{ m6_data.production_monitoring.data_drift.cgpa_feature.ks_statistic }}</td>
+                        <td>{{ m6_data.production_monitoring.data_drift.cgpa_feature.ks_p_value }}</td>
+                        <td><strong>{{ m6_data.production_monitoring.data_drift.cgpa_feature.psi_score }}</strong></td>
+                        <td>
+                            {% if m6_data.production_monitoring.data_drift.cgpa_feature.drift_detected %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">Significant Drift</span>
+                            {% else %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Stable</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Coding Test Score</strong></td>
+                        <td>{{ m6_data.production_monitoring.data_drift.coding_score_feature.ks_statistic }}</td>
+                        <td>{{ m6_data.production_monitoring.data_drift.coding_score_feature.ks_p_value }}</td>
+                        <td><strong>{{ m6_data.production_monitoring.data_drift.coding_score_feature.psi_score }}</strong></td>
+                        <td>
+                            {% if m6_data.production_monitoring.data_drift.coding_score_feature.drift_detected %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">Significant Drift</span>
+                            {% else %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Stable</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p style="font-size: 0.82rem; color: var(--text-tertiary); margin: 0;">
+            PSI thresholds: PSI &lt; 0.10 (No change), 0.10 &le; PSI &le; 0.20 (Moderate shift), PSI &gt; 0.20 (Actionable drift triggering automated pipeline retraining).
+        </p>
+
+    </div>
+</div>
+
+<!-- Section 5: Model Registry & Artifact Management -->
+<div class="card" id="model-registry" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-boxes-packing card-icon" style="color: var(--primary-500);"></i>
+            <h3>MLflow-Style Model Registry & Lineage</h3>
+        </div>
+        <span class="header-badge">Model Governance</span>
+    </div>
+    <div class="card-body">
+        
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Model ID</th>
+                        <th>Name & Version</th>
+                        <th>Deployment Stage</th>
+                        <th>Packaging Format</th>
+                        <th>Test Accuracy</th>
+                        <th>ROC-AUC</th>
+                        <th>p95 Latency</th>
+                        <th>Training Dataset Lineage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mdl in m6_data.model_registry %}
+                    <tr>
+                        <td><code>{{ mdl.model_id }}</code></td>
+                        <td><strong>{{ mdl.name }}</strong> (v{{ mdl.version }})</td>
+                        <td>
+                            {% if mdl.status == 'PRODUCTION' %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 700;">PRODUCTION</span>
+                            {% elif mdl.status == 'STAGING' %}
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">STAGING</span>
+                            {% else %}
+                            <span class="badge" style="background: var(--bg-surface); color: var(--text-tertiary);">ARCHIVED</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ mdl.format }}</td>
+                        <td>{{ (mdl.metrics.test_accuracy * 100) | round(2) }}%</td>
+                        <td>{{ mdl.metrics.roc_auc }}</td>
+                        <td>{{ mdl.metrics.p95_latency_ms }} ms</td>
+                        <td style="font-size: 0.8rem; color: var(--text-tertiary);">{{ mdl.training_dataset_version }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

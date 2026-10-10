@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}M5: Evaluation, Selection & Calibration | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-bullseye" style="color: var(--primary-500);"></i>
+    <span>M5: Model Evaluation, Selection, and Calibration</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+        <i class="fas fa-sliders"></i> Metrics Rigor, Calibration & Statistical Testing
+    </span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero" style="margin-bottom: 2rem;">
+    <h1>Evaluation Rigor, Probability Calibration & Statistical Testing</h1>
+    <p>
+        Moving beyond naive accuracy. Master the 3-way split discipline and nested cross-validation,
+        diagnose the accuracy paradox under imbalanced placement data, calibrate tree probabilities via Platt scaling
+        to achieve low Expected Calibration Error (ECE), and verify performance differences using McNemar's test.
+    </p>
+</div>
+
+<!-- Section 1: 3-Way Split Discipline & Nested Cross-Validation -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-layer-group card-icon" style="color: #6366f1;"></i>
+            <h3>Split Discipline & Nested Cross-Validation Architecture</h3>
+        </div>
+        <span class="header-badge">Preventing Leakage</span>
+    </div>
+    <div class="card-body">
+        
+        <!-- 3-Way Split Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #6366f1;">
+                <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #6366f1; margin-bottom: 0.4rem;">60% Training Split</span>
+                <h4 style="font-size: 1rem; margin: 0.3rem 0;">{{ m5_data.split_and_nested_cv.three_way_split.training_set.count }} Records</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">{{ m5_data.split_and_nested_cv.three_way_split.training_set.purpose }}</p>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #f59e0b;">
+                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; margin-bottom: 0.4rem;">20% Validation Split</span>
+                <h4 style="font-size: 1rem; margin: 0.3rem 0;">{{ m5_data.split_and_nested_cv.three_way_split.validation_set.count }} Records</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">{{ m5_data.split_and_nested_cv.three_way_split.validation_set.purpose }}</p>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #10b981;">
+                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; margin-bottom: 0.4rem;">20% Held-Out Test Vault</span>
+                <h4 style="font-size: 1rem; margin: 0.3rem 0;">{{ m5_data.split_and_nested_cv.three_way_split.test_set.count }} Records</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">{{ m5_data.split_and_nested_cv.three_way_split.test_set.purpose }}</p>
+            </div>
+        </div>
+
+        <!-- Nested CV Summary -->
+        <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #6366f1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h4 style="font-size: 1rem; margin: 0;">Nested Cross-Validation (Unbiased Generalization Estimate)</h4>
+                <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; font-size: 0.9rem;">
+                    Nested Mean Acc: {{ (m5_data.split_and_nested_cv.nested_cross_validation.unbiased_nested_mean_accuracy * 100) | round(2) }}%
+                </span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                {{ m5_data.split_and_nested_cv.nested_cross_validation.concept }}
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 2: Classification Metrics Suite & Confusion Matrix -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-table-cells card-icon" style="color: #10b981;"></i>
+            <h3>The Comprehensive Classification Metrics Suite</h3>
+        </div>
+        <span class="header-badge">Beyond Accuracy</span>
+    </div>
+    <div class="card-body">
+        
+        <!-- Metrics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">Accuracy</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem;">{{ (m5_data.classification_metrics.metrics.accuracy * 100) | round(1) }}%</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">Precision</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #10b981;">{{ m5_data.classification_metrics.metrics.precision }}</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">Recall (Sensitivity)</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #3b82f6;">{{ m5_data.classification_metrics.metrics.recall }}</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">F1 Score</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #a855f7;">{{ m5_data.classification_metrics.metrics.f1_score }}</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">ROC-AUC</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #ec4899;">{{ m5_data.classification_metrics.metrics.roc_auc }}</h3>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">PR-AUC</span>
+                <h3 style="margin: 0.2rem 0; font-size: 1.3rem; color: #f59e0b;">{{ m5_data.classification_metrics.metrics.pr_auc }}</h3>
+            </div>
+        </div>
+
+        <!-- Confusion Matrix & Accuracy Paradox -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- 2x2 Matrix -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Held-Out Test Confusion Matrix:</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; text-align: center;">
+                    <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border: 2px solid #10b981;">
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary);">True Negatives (TN)</span>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;">{{ m5_data.classification_metrics.confusion_matrix.true_negatives }}</div>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border: 2px solid #ef4444;">
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary);">False Positives (FP)</span>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #ef4444;">{{ m5_data.classification_metrics.confusion_matrix.false_positives }}</div>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border: 2px solid #ef4444;">
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary);">False Negatives (FN)</span>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #ef4444;">{{ m5_data.classification_metrics.confusion_matrix.false_negatives }}</div>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border: 2px solid #10b981;">
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary);">True Positives (TP)</span>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;">{{ m5_data.classification_metrics.confusion_matrix.true_positives }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accuracy Paradox -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent-amber);">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-amber);">The Accuracy Paradox Under Class Imbalance</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                    {{ m5_data.classification_metrics.accuracy_paradox_insight }}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 3: Probability Calibration & Reliability Diagrams -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-chart-line-up card-icon" style="color: #ec4899;"></i>
+            <h3>Probability Calibration: Platt Scaling & Reliability Diagrams</h3>
+        </div>
+        <span class="header-badge">Expected Calibration Error</span>
+    </div>
+    <div class="card-body">
+        
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            A raw probability score of 0.7 should genuinely signify that 70 out of 100 students get placed. 
+            {{ m5_data.probability_calibration.calibration_concept }}
+        </p>
+
+        <!-- ECE and Brier Scores -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #ef4444;">
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Uncalibrated Tree Model</span>
+                <div style="font-size: 1.1rem; font-weight: 700; margin: 0.3rem 0;">ECE: {{ m5_data.probability_calibration.expected_calibration_error_ece.uncalibrated_ece }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">Brier Score: {{ m5_data.probability_calibration.brier_scores.uncalibrated_rf }}</div>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #10b981;">
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Platt Scaling (Sigmoid)</span>
+                <div style="font-size: 1.1rem; font-weight: 700; color: #10b981; margin: 0.3rem 0;">
+                    ECE: {{ m5_data.probability_calibration.expected_calibration_error_ece.platt_calibrated_ece }}
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; margin-left: 0.3rem;">
+                        -{{ m5_data.probability_calibration.expected_calibration_error_ece.reduction_pct }}% Error!
+                    </span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">Brier Score: {{ m5_data.probability_calibration.brier_scores.platt_scaling_sigmoid }}</div>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #a855f7;">
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Isotonic Regression</span>
+                <div style="font-size: 1.1rem; font-weight: 700; color: #a855f7; margin: 0.3rem 0;">Non-Parametric Step</div>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">Brier Score: {{ m5_data.probability_calibration.brier_scores.isotonic_regression }}</div>
+            </div>
+        </div>
+
+        <!-- Reliability Diagram Table -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Reliability Diagram Calibration Curve:</h4>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Probability Bin</th>
+                        <th>Predicted Probability (Uncalibrated)</th>
+                        <th>Actual Empirical Placed %</th>
+                        <th>Platt Calibrated Probability</th>
+                        <th>Calibration Alignment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in m5_data.probability_calibration.reliability_diagram_bins %}
+                    <tr>
+                        <td><strong>Bin {{ b.bin }}</strong></td>
+                        <td>{{ (b.mean_predicted_probability * 100) | round(1) }}%</td>
+                        <td>{{ (b.empirical_fraction_of_positives * 100) | round(1) }}%</td>
+                        <td style="color: #10b981; font-weight: 600;">{{ (b.calibrated_predicted_probability * 100) | round(1) }}%</td>
+                        <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Close to Ideal Diagonal</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 4: Learning Curves & Statistical Significance (McNemar) -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-microscope card-icon" style="color: #3b82f6;"></i>
+            <h3>Learning Curves & McNemar's Statistical Significance Test</h3>
+        </div>
+        <span class="header-badge">Scientific Rigor</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Learning Curves -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Empirical Learning Curve Diagnostics:</h4>
+                <div class="table-responsive" style="margin-bottom: 0.75rem;">
+                    <table class="data-table" style="font-size: 0.82rem;">
+                        <thead>
+                            <tr>
+                                <th>Samples</th>
+                                <th>Train Acc</th>
+                                <th>Val Acc</th>
+                                <th>Gap</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in m5_data.learning_curves.learning_curve_data %}
+                            <tr>
+                                <td>{{ row.training_samples }}</td>
+                                <td>{{ (row.train_accuracy * 100) | round(1) }}%</td>
+                                <td>{{ (row.validation_accuracy * 100) | round(1) }}%</td>
+                                <td>{{ row.generalization_gap }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-tertiary); margin: 0;">
+                    As training data scales, the generalization gap narrows, proving the model is not suffering from extreme data scarcity.
+                </p>
+            </div>
+
+            <!-- McNemar's Test -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #3b82f6;">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: #3b82f6;">
+                    McNemar's Significance Test (Logistic vs GBDT)
+                </h4>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.75rem;">
+                    &chi;&sup2; Test Statistic: <strong>{{ m5_data.mcnemar_significance.mcnemar_statistic }}</strong> | p-value: <strong>{{ m5_data.mcnemar_significance.p_value }}</strong>
+                </div>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 0.75rem;">
+                    Discordant Pairs: Logistic Right/GBDT Wrong (b) = <strong>{{ m5_data.mcnemar_significance.contingency_table.model_a_only_correct }}</strong><br>
+                    GBDT Right/Logistic Wrong (c) = <strong>{{ m5_data.mcnemar_significance.contingency_table.model_b_only_correct }}</strong>
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+                    <strong>Conclusion:</strong> {{ m5_data.mcnemar_significance.interpretation }}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

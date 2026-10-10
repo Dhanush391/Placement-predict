@@ -509,8 +509,84 @@ def predict_student(student_dict: Dict[str, Any]) -> Dict[str, Any]:
     clf_pipe = artifacts["best_clf_pipeline"]
     reg_pipe = artifacts["best_reg_pipeline"]
 
+    # Normalize key aliases and casing
+    key_aliases = {
+        "cgpa": "CGPA",
+        "internships": "Internships",
+        "projects": "Projects",
+        "workshops": "Workshops",
+        "certifications": "Certifications",
+        "codingtestscore": "CodingTestScore",
+        "coding_score": "CodingTestScore",
+        "aptitudetestscore": "AptitudeTestScore",
+        "aptitude_score": "AptitudeTestScore",
+        "softskillsrating": "SoftSkillsRating",
+        "soft_skills_score": "SoftSkillsRating",
+        "mockinterviewscore": "MockInterviewScore",
+        "attendancepercent": "AttendancePercent",
+        "collegetier": "CollegeTier",
+        "tier": "CollegeTier",
+        "stream": "Stream",
+        "branch": "Stream",
+        "specialisation": "Specialisation",
+        "city": "City",
+        "historyofbacklogs": "HistoryOfBacklogs",
+        "backlogs": "HistoryOfBacklogs",
+        "hostel": "Hostel",
+        "gender": "Gender",
+        "publications": "Publications",
+        "extracurricular": "ExtraCurricular",
+    }
+    student_clean = {}
+    for k, v in student_dict.items():
+        canonical_k = key_aliases.get(k.lower(), k)
+        student_clean[canonical_k] = v
+
+    cgpa_raw = student_clean.get("CGPA", 7.5)
+    cgpa_val = float(cgpa_raw) if cgpa_raw is not None and str(cgpa_raw).strip() != "" else 7.5
+    student_clean["CGPA"] = cgpa_val
+
+    # Normalize backlogs if passed as integer (e.g., 0 or 1)
+    if "HistoryOfBacklogs" in student_clean:
+        if str(student_clean["HistoryOfBacklogs"]).strip() in ["0", "False", "false", "No", "no"]:
+            student_clean["HistoryOfBacklogs"] = "No"
+        elif str(student_clean["HistoryOfBacklogs"]).strip() in ["1", "True", "true", "Yes", "yes"]:
+            student_clean["HistoryOfBacklogs"] = "Yes"
+
+    # Fill semester grades if not explicitly provided
+    for sem in range(1, 9):
+        sem_col = f"SGPA_Sem{sem}"
+        if sem_col not in student_clean:
+            student_clean[sem_col] = cgpa_val
+
+    # Standard default categorical & numeric attributes
+    defaults = {
+        "Publications": 0,
+        "ExtraCurricular": 1,
+        "Workshops": 2,
+        "Certifications": 2,
+        "Hostel": "No",
+        "HistoryOfBacklogs": "No",
+        "Gender": "Male",
+        "City": "Bangalore",
+        "CollegeTier": "Tier2",
+        "Stream": "Computer Science",
+        "Specialisation": "Data Science",
+        "AttendancePercent": 80.0,
+        "CodingTestScore": 70.0,
+        "AptitudeTestScore": 70.0,
+        "SoftSkillsRating": 3.5,
+        "MockInterviewScore": 70.0,
+        "Internships": 1,
+        "Projects": 2,
+        "CGPA_Tier": "High" if cgpa_val >= 8.0 else ("Mid" if cgpa_val >= 6.5 else "Low")
+    }
+    for k, v in defaults.items():
+        if k not in student_clean or student_clean[k] is None or student_clean[k] == "":
+            student_clean[k] = v
+
     # Convert single student dict to DataFrame matching training schema
-    df_student = pd.DataFrame([student_dict])
+    df_student = pd.DataFrame([student_clean])
 
     # 1. Predict placement classification & probability
     placement_pred = int(clf_pipe.predict(df_student)[0])
@@ -530,10 +606,10 @@ def predict_student(student_dict: Dict[str, Any]) -> Dict[str, Any]:
         salary_est = 0.0
 
     # 3. Analyze influential signals for this student
-    cgpa = float(student_dict.get("CGPA", 0))
-    coding = float(student_dict.get("CodingTestScore", 0))
-    internships = int(student_dict.get("Internships", 0))
-    backlogs = str(student_dict.get("HistoryOfBacklogs", "No")).lower() == "yes"
+    cgpa = float(student_clean.get("CGPA", 0))
+    coding = float(student_clean.get("CodingTestScore", 0))
+    internships = int(student_clean.get("Internships", 0))
+    backlogs = str(student_clean.get("HistoryOfBacklogs", "No")).lower() == "yes"
 
     insights = []
     if cgpa >= 8.0:

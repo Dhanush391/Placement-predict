@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}M2: Linear Models at Depth | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-chart-line" style="color: var(--primary-500);"></i>
+    <span>M2: Supervised Learning — Linear Models at Depth</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3);">
+        <i class="fas fa-square-root-variable"></i> Closed-Form, Gradient Descent & Regularization
+    </span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero" style="margin-bottom: 2rem;">
+    <h1>Linear Models at Depth & Mathematical Foundations</h1>
+    <p>
+        Explore the dual perspectives of linear optimization: closed-form Normal Equations vs iterative Gradient Descent,
+        the geometric diamond mechanism of L1 Lasso sparsity, multinomial Softmax regression for multi-tier placement classes,
+        and empirical verification of feature standardization.
+    </p>
+</div>
+
+<!-- Section 1: Normal Equations vs Gradient Descent -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-calculator card-icon" style="color: var(--primary-500);"></i>
+            <h3>Closed-Form Normal Equations vs Gradient Descent Training</h3>
+        </div>
+        <span class="header-badge">Regression Optimization</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            
+            <!-- Normal Equations Card -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #6366f1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1rem;">Analytical Normal Equations</h4>
+                    <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">{{ m2_data.normal_eq_vs_gd.normal_equations.computation_time_ms }} ms</span>
+                </div>
+                <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.85rem; color: var(--primary-600); margin-bottom: 0.75rem;">
+                    &beta; = (X<sup>T</sup>X)<sup>-1</sup> X<sup>T</sup>y
+                </div>
+                <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Condition Number &kappa;(X<sup>T</sup>X):</strong> {{ m2_data.normal_eq_vs_gd.normal_equations.condition_number }}</li>
+                    <li><strong>Complexity:</strong> {{ m2_data.normal_eq_vs_gd.normal_equations.computational_complexity }}</li>
+                    <li><strong>R&sup2; Score:</strong> {{ m2_data.normal_eq_vs_gd.normal_equations.r2_score }} | <strong>RMSE:</strong> {{ m2_data.normal_eq_vs_gd.normal_equations.rmse }} LPA</li>
+                    <li><strong>Feature Scaling Required:</strong> No (scale-invariant in infinite precision)</li>
+                    <li><strong>Limitation:</strong> {{ m2_data.normal_eq_vs_gd.normal_equations.stability_note }}</li>
+                </ul>
+            </div>
+
+            <!-- Gradient Descent Card -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1rem;">Iterative Batch Gradient Descent</h4>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">{{ m2_data.normal_eq_vs_gd.gradient_descent.computation_time_ms }} ms</span>
+                </div>
+                <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.85rem; color: #10b981; margin-bottom: 0.75rem;">
+                    &beta;<sub>t+1</sub> = &beta;<sub>t</sub> - &alpha; &nabla;L(&beta;)
+                </div>
+                <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Iterations:</strong> {{ m2_data.normal_eq_vs_gd.gradient_descent.iterations }} steps (&alpha; = {{ m2_data.normal_eq_vs_gd.gradient_descent.learning_rate }})</li>
+                    <li><strong>Complexity:</strong> {{ m2_data.normal_eq_vs_gd.gradient_descent.computational_complexity }}</li>
+                    <li><strong>R&sup2; Score:</strong> {{ m2_data.normal_eq_vs_gd.gradient_descent.r2_score }} | <strong>RMSE:</strong> {{ m2_data.normal_eq_vs_gd.gradient_descent.rmse }} LPA</li>
+                    <li><strong>Feature Scaling Required:</strong> Yes (mandatory for spherical contours)</li>
+                    <li><strong>Advantage:</strong> {{ m2_data.normal_eq_vs_gd.gradient_descent.stability_note }}</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid var(--accent-amber); font-size: 0.88rem; color: var(--text-secondary);">
+            <strong>Theoretical Takeaway:</strong> {{ m2_data.normal_eq_vs_gd.comparison_verdict }}
+        </div>
+    </div>
+</div>
+
+<!-- Section 2: Regularization Geometry: Ridge, Lasso, Elastic Net -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-shapes card-icon" style="color: var(--accent-purple);"></i>
+            <h3>Regularization Geometry: Ridge (L2), Lasso (L1), and Elastic Net</h3>
+        </div>
+        <span class="header-badge">Sparsity & Feature Selection</span>
+    </div>
+    <div class="card-body">
+        
+        <!-- Metrics Row -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #3b82f6;">
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Ridge Regression (L2)</span>
+                <h4 style="font-size: 1.1rem; margin: 0.3rem 0;">Zero Coefs: {{ m2_data.regularization_sparsity.models.ridge.zero_coefficients }} / {{ m2_data.regularization_sparsity.models.ridge.active_coefficients + m2_data.regularization_sparsity.models.ridge.zero_coefficients }}</h4>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">Sparsity: {{ m2_data.regularization_sparsity.models.ridge.sparsity_pct }}% | R&sup2;: {{ m2_data.regularization_sparsity.models.ridge.r2 }}</div>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #ec4899;">
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Lasso Regression (L1)</span>
+                <h4 style="font-size: 1.1rem; margin: 0.3rem 0; color: #ec4899;">Zero Coefs: {{ m2_data.regularization_sparsity.models.lasso.zero_coefficients }} (Pruned)</h4>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">Sparsity: {{ m2_data.regularization_sparsity.models.lasso.sparsity_pct }}% | R&sup2;: {{ m2_data.regularization_sparsity.models.lasso.r2 }}</div>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #8b5cf6;">
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Elastic Net (L1 + L2)</span>
+                <h4 style="font-size: 1.1rem; margin: 0.3rem 0;">Zero Coefs: {{ m2_data.regularization_sparsity.models.elastic_net.zero_coefficients }}</h4>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary);">Sparsity: {{ m2_data.regularization_sparsity.models.elastic_net.sparsity_pct }}% | R&sup2;: {{ m2_data.regularization_sparsity.models.elastic_net.r2 }}</div>
+            </div>
+        </div>
+
+        <!-- Geometric Diamond Picture Explanation -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #ec4899;">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.4rem; color: #ec4899;">Why L1 Induces Exact Sparsity (Diamond Vertices)</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                    {{ m2_data.regularization_sparsity.geometric_proof.l1_diamond_geometry }}
+                </p>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #3b82f6;">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.4rem; color: #3b82f6;">Why L2 Smooth Sphere Does Not Sparsify</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                    {{ m2_data.regularization_sparsity.geometric_proof.l2_sphere_geometry }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Coefficients Comparison Table -->
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Ridge (L2 Weight)</th>
+                        <th>Lasso (L1 Weight)</th>
+                        <th>Elastic Net Weight</th>
+                        <th>Lasso Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in m2_data.regularization_sparsity.coefficients[:8] %}
+                    <tr>
+                        <td><strong>{{ c.feature }}</strong></td>
+                        <td>{{ c.ridge_l2 }}</td>
+                        <td style="color: {% if c.is_lasso_pruned %}#94a3b8{% else %}#ec4899{% endif %}; font-weight: 600;">{{ c.lasso_l1 }}</td>
+                        <td>{{ c.elastic_net }}</td>
+                        <td>
+                            {% if c.is_lasso_pruned %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">Pruned to 0.0</span>
+                            {% else %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Active Feature</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 3: Multinomial Softmax Regression for Placement Tiers -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-layer-group card-icon" style="color: #10b981;"></i>
+            <h3>Multinomial Logistic Regression (Softmax) for Placement Tiers</h3>
+        </div>
+        <span class="header-badge">Multi-Class Classification</span>
+    </div>
+    <div class="card-body">
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Extending binary logistic regression to 4 multi-class placement salary tiers using the Softmax activation:
+            <code>P(y=k|x) = exp(w_k<sup>T</sup>x) / &sum;<sub>j</sub> exp(w_j<sup>T</sup>x)</code>.
+            Overall Accuracy: <strong>{{ m2_data.multinomial_softmax.accuracy * 100 }}%</strong> | Multi-class Log Loss: <strong>{{ m2_data.multinomial_softmax.log_loss }}</strong>.
+        </p>
+
+        <!-- Sample Probability Distribution -->
+        <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Sample Candidate Softmax Probability Distribution:</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                {% for p in m2_data.multinomial_softmax.sample_prediction.distribution %}
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); border-top: 3px solid var(--primary-500);">
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">{{ p.tier }}</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--primary-600);">{{ p.probability }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-secondary);">
+                Predicted Class: <strong style="color: #10b981;">{{ m2_data.multinomial_softmax.sample_prediction.predicted }}</strong>
+            </div>
+        </div>
+
+        <!-- Per-class Top Driver Weights -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+            {% for cw in m2_data.multinomial_softmax.class_weights %}
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md);">
+                <h5 style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-primary);">{{ cw.class_label }}</h5>
+                <div style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">Intercept: {{ cw.intercept }}</div>
+                <ul style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; padding-left: 1rem;">
+                    {% for d in cw.top_drivers %}
+                    <li><strong>{{ d.feature }}:</strong> {{ d.weight }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 4: Feature Scaling & Encoding Experiments -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-sliders card-icon" style="color: var(--accent-cyan);"></i>
+            <h3>Feature Scaling Impact & Categorical Target Encoding</h3>
+        </div>
+        <span class="header-badge">Data Transformations</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <!-- Scaling in Logistic vs Trees -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">When Scaling Matters vs When It Doesn't</h4>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                    <strong>Logistic Regression (Iterative Optimization):</strong>
+                    <div style="margin-left: 0.75rem;">
+                        Unscaled: {{ m2_data.scaling_invariance.logistic_regression.unscaled.iterations_to_converge }} iters (Time: {{ m2_data.scaling_invariance.logistic_regression.unscaled.fit_time_ms }} ms)<br>
+                        StandardScaled: {{ m2_data.scaling_invariance.logistic_regression.standard_scaled.iterations_to_converge }} iters (Time: {{ m2_data.scaling_invariance.logistic_regression.standard_scaled.fit_time_ms }} ms)
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                    <strong>Decision Tree (Split Rank Invariance):</strong>
+                    <div style="margin-left: 0.75rem;">
+                        Unscaled Accuracy: {{ m2_data.scaling_invariance.decision_tree_invariance.unscaled_accuracy }}<br>
+                        Scaled Accuracy: {{ m2_data.scaling_invariance.decision_tree_invariance.scaled_accuracy }}<br>
+                        <span style="color: #10b981; font-weight: 600;">Difference: {{ m2_data.scaling_invariance.decision_tree_invariance.accuracy_difference }} (Strict 0.0 Invariance!)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Encoding with Smoothing -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Smoothed Target Encoding (m-estimate)</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    {{ m2_data.categorical_missing.target_encoding.concept }}
+                </p>
+                <div class="table-responsive">
+                    <table class="data-table" style="font-size: 0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Stream</th>
+                                <th>Count</th>
+                                <th>Raw Mean</th>
+                                <th>Smoothed Target Encoding</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in m2_data.categorical_missing.target_encoding.stream_encodings %}
+                            <tr>
+                                <td>{{ row.Stream }}</td>
+                                <td>{{ row.count }}</td>
+                                <td>{{ (row.mean * 100) | round(1) }}%</td>
+                                <td><strong>{{ row.smoothed_target_enc }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

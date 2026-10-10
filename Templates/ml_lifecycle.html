@@ -1,167 +1,266 @@
 {% extends "base.html" %}
 
-{% block title %}ML System Lifecycle & Architecture | Placement Prediction{% endblock %}
+{% block title %}M1: ML System Lifecycle & Architecture | Placement Prediction{% endblock %}
 
 {% block page_title %}
-    <i class="fas fa-book" style="color: var(--primary-500);"></i>
+    <i class="fas fa-cubes-stacked" style="color: var(--primary-500);"></i>
     <span>M1: PlacementPredict as a System — The ML Lifecycle</span>
 {% endblock %}
 
 {% block page_badge %}
-    <span class="header-badge">Architecture & Production Design</span>
+    <span class="header-badge" style="background: rgba(99, 102, 241, 0.15); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.3);">
+        <i class="fas fa-microchip"></i> System Architecture & Serving
+    </span>
 {% endblock %}
 
 {% block content %}
 
 <!-- Hero Banner -->
 <div class="welcome-hero" style="margin-bottom: 2rem;">
-    <h1>The Machine Learning System Lifecycle</h1>
+    <h1>The Production Machine Learning Lifecycle</h1>
     <p>
-        Building a production ML system is far more than fitting a model in a notebook. 
-        It requires an orchestrated pipeline from raw ingestion to low-latency serving, robust against training-serving skew.
+        A working prediction service running on day one. Students issue requests against <code>PlacementPredict</code> and observe calibrated predictions before inspecting internal algorithms.
+        Explore the 8 lifecycle stages, end-to-end request tracing, the training-serving boundary, and downstream curriculum boundaries.
     </p>
+    <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+        <a href="#request-tracing" class="btn btn-primary" style="text-decoration: none;">
+            <i class="fas fa-stopwatch"></i> Trace Live Prediction
+        </a>
+        <a href="{{ url_for('prediction_view') }}" class="btn btn-secondary" style="text-decoration: none;">
+            <i class="fas fa-play"></i> Open Interactive Predictor
+        </a>
+        <a href="#curriculum-scope" class="btn btn-secondary" style="text-decoration: none;">
+            <i class="fas fa-graduation-cap"></i> Curriculum Boundaries
+        </a>
+    </div>
 </div>
 
-<!-- 8 Stages Flow Grid -->
+<!-- 8 Stages of ML Lifecycle Grid -->
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
         <div class="card-header-title">
             <i class="fas fa-diagram-project card-icon" style="color: var(--primary-500);"></i>
-            <h3>The 8 Stages of PlacementPredict Lifecycle</h3>
+            <h3>Where Each Lifecycle Stage Lives in Code</h3>
         </div>
-        <span class="header-badge">End-to-End Pipeline</span>
+        <span class="header-badge">8 Canonical Stages</span>
     </div>
     <div class="card-body">
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-            
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #6366f1;">
-                <span class="badge" style="background: var(--primary-100); color: var(--primary-700); margin-bottom: 0.5rem;">01. Raw Data</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Raw Data Ingestion</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    Ingestion of tabular campus records. Located in <code>Data/placement_predict_50k Dataset.csv</code>.
-                </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+            {% for stage in m1_data.lifecycle_stages %}
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--primary-500); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="badge" style="background: var(--primary-100); color: var(--primary-700); font-weight: 600;">{{ stage.name }}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary); background: var(--bg-surface); padding: 0.2rem 0.5rem; border-radius: 4px;">{{ stage.badge }}</span>
+                    </div>
+                    <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">{{ stage.description }}</p>
+                </div>
+                <div style="font-size: 0.8rem; background: var(--bg-surface); padding: 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <div style="color: var(--primary-600); font-weight: 600; margin-bottom: 0.2rem;">
+                        <i class="fas fa-code"></i> Code Location:
+                    </div>
+                    <code style="word-break: break-all;">{{ stage.code_location }}</code>
+                </div>
             </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #10b981;">
-                <span class="badge" style="background: var(--accent-emerald-light); color: var(--accent-emerald); margin-bottom: 0.5rem;">02. Cleaned</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Cleaned Dataset</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    Outlier detection, duplicate checks, schema validation in <code>load_data.py</code>.
-                </p>
-            </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #f59e0b;">
-                <span class="badge" style="background: var(--accent-amber-light); color: var(--accent-amber); margin-bottom: 0.5rem;">03. Features</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Engineered Features</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    <code>ColumnTransformer</code> handles median imputation, StandardScaler/MinMaxScaler, and One-Hot/Ordinal encodings.
-                </p>
-            </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #8b5cf6;">
-                <span class="badge" style="background: var(--accent-purple-light); color: var(--accent-purple); margin-bottom: 0.5rem;">04. Splits</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Training & Test Sets</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    Stratified 80/20 splitting preserves placement class balance without leakage.
-                </p>
-            </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #ec4899;">
-                <span class="badge" style="background: var(--accent-rose-light); color: var(--accent-rose); margin-bottom: 0.5rem;">05. Training</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Trained Estimators</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    Training <strong>M2 Linear</strong> & <strong>M3 Tree</strong> algorithms in <code>supervised_models.py</code>.
-                </p>
-            </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #06b6d4;">
-                <span class="badge" style="background: var(--accent-cyan-light); color: var(--accent-cyan); margin-bottom: 0.5rem;">06. Artifacts</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Packaged Artifact</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    Serialized production pipelines stored in <code>models/saved_models.joblib</code>.
-                </p>
-            </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #14b8a6;">
-                <span class="badge" style="background: #ccfbf1; color: #0f766e; margin-bottom: 0.5rem;">07. Endpoint</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Served Endpoint</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    REST inference endpoint <code>POST /api/predict</code> serving instant JSON predictions.
-                </p>
-            </div>
-
-            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #64748b;">
-                <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 0.5rem;">08. Monitoring</span>
-                <h4 style="margin-bottom: 0.4rem; font-size: 1rem;">Monitoring & Retraining</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    Benchmark logging in <code>models/benchmark_results.json</code> with triggerable retraining.
-                </p>
-            </div>
-
+            {% endfor %}
         </div>
-
     </div>
 </div>
 
-<!-- Deep Architectural Sections -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-
-    <!-- Training-Serving Skew & Feature Stores -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-header-title">
-                <i class="fas fa-triangle-exclamation card-icon" style="color: var(--accent-rose);"></i>
-                <h3>The Training-Serving Boundary & Skew</h3>
-            </div>
+<!-- End-to-End Prediction Tracing Section -->
+<div class="card" id="request-tracing" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-stopwatch card-icon" style="color: #10b981;"></i>
+            <h3>Tracing One Prediction End-to-End: HTTP Request to Response</h3>
         </div>
-        <div class="card-body">
-            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
-                <strong>Training-Serving Skew</strong> is the discrepancy between model performance in development versus real-world production serving. It is the #1 cause of silent failures in machine learning systems.
-            </p>
-            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
-                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.4rem;">How PlacementPredict Eliminates Skew:</div>
-                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    <li>Raw features are transformed at inference time by the <em>exact same serialized preprocessor</em> fitted on training data.</li>
-                    <li>No ad-hoc manual scaling or encoding in client web forms.</li>
-                    <li>Feature statistics ($\mu, \sigma$, categories) remain locked inside the packaged <code>joblib</code> artifact.</li>
-                </ul>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
-                <i class="fas fa-database" style="color: var(--primary-500);"></i> <strong>Why Feature Stores Exist:</strong> In enterprise systems (e.g. Feast, Hopsworks), feature stores unify batch feature computation for model training with ultra-low latency point lookups for online serving.
-            </p>
-        </div>
+        <span class="header-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+            Total Latency: {{ m1_data.sample_trace.total_latency_ms }} ms
+        </span>
     </div>
+    <div class="card-body">
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
+            When a student enters their CGPA and interview scores into the portal, the request traverses 5 distinct boundary layers. 
+            Below is an actual profiled trace executed on the live serving pipeline:
+        </p>
 
-    <!-- Machine Learning Paradigm Split & Course Scope -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-header-title">
-                <i class="fas fa-sitemap card-icon" style="color: var(--accent-purple);"></i>
-                <h3>ML Paradigms & Curriculum Scope</h3>
+        <!-- Pipeline Breakdown Timeline -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            {% for step in m1_data.sample_trace.breakdown %}
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border-top: 3px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <strong style="font-size: 0.9rem;">{{ step.stage }}</strong>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">{{ step.duration_ms }} ms</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">{{ step.description }}</p>
             </div>
+            {% endfor %}
         </div>
-        <div class="card-body">
-            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
-                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.4rem;">Supervised vs Unsupervised vs RL:</div>
-                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    <li><strong>PlacementPredict is Supervised Learning:</strong> We learn from historical labeled records $(X, y)$ where true outcomes (Placed/Unplaced, Salary) are known.</li>
-                    <li><strong>What it is NOT:</strong> It is not Unsupervised (clustering unlabeled patterns) or Reinforcement Learning (agent receiving delayed rewards in an environment).</li>
-                </ul>
-            </div>
 
-            <div style="background: rgba(99, 102, 241, 0.06); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--primary-500);">
-                <div style="font-weight: 600; font-size: 0.85rem; color: var(--primary-700); margin-bottom: 0.4rem;">Curriculum Division of Ownership:</div>
-                <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
-                    <li><strong>This Course (ML):</strong> Classical ML, regularized linear models, tree ensembles, tabular ML engineering.</li>
-                    <li><strong>DLAC:</strong> Deep Learning architectures (MLPs, CNNs, Transformers).</li>
-                    <li><strong>GALE:</strong> Generative AI, VAEs, GANs, Diffusion models.</li>
-                    <li><strong>NLPL:</strong> Natural Language Processing, Large Language Models (LLMs).</li>
-                </ul>
+        <!-- Single Request vs Batch Prediction Comparison -->
+        <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 0.75rem; font-size: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-bolt" style="color: #f59e0b;"></i> Single Online Request vs Vectorized Batch Prediction
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.9rem;">
+                <div>
+                    <span style="color: var(--text-secondary);">Single Latency:</span>
+                    <strong style="display: block; font-size: 1.1rem; color: #10b981;">{{ m1_data.sample_trace.batch_comparison.single_prediction_latency_ms }} ms</strong>
+                    <small style="color: var(--text-tertiary);">Dominated by HTTP TCP handshake & JSON serialization.</small>
+                </div>
+                <div>
+                    <span style="color: var(--text-secondary);">Batch 1,000 Students Latency:</span>
+                    <strong style="display: block; font-size: 1.1rem; color: #6366f1;">{{ m1_data.sample_trace.batch_comparison.batch_size_1000_latency_ms }} ms</strong>
+                    <small style="color: var(--text-tertiary);">Vectorized NumPy / BLAS matrix multiplications.</small>
+                </div>
+                <div>
+                    <span style="color: var(--text-secondary);">Batch Throughput:</span>
+                    <strong style="display: block; font-size: 1.1rem; color: #ec4899;">{{ m1_data.sample_trace.batch_comparison.batch_throughput_req_sec }} req/sec</strong>
+                    <small style="color: var(--text-tertiary);">{{ m1_data.sample_trace.batch_comparison.vectorized_speedup }}</small>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
+<!-- Supervised vs Unsupervised vs RL Taxonomy -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-scale-balanced card-icon" style="color: var(--accent-purple);"></i>
+            <h3>The ML Paradigm Split: What PlacementPredict Is and Is Not</h3>
+        </div>
+        <span class="header-badge">Core Taxonomy</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            
+            <!-- Supervised -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 4px solid #10b981;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.2rem;"></i>
+                    <h4 style="margin: 0; font-size: 1.05rem;">Supervised Learning (PlacementPredict Core)</h4>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    {{ m1_data.taxonomy.supervised.definition }}
+                </p>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 0.75rem;">
+                    <strong>Placement Role:</strong> {{ m1_data.taxonomy.supervised.placement_role }}
+                </div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    {% for ex in m1_data.taxonomy.supervised.examples %}
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">{{ ex }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Unsupervised -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 4px solid #6366f1;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-shapes" style="color: #6366f1; font-size: 1.2rem;"></i>
+                    <h4 style="margin: 0; font-size: 1.05rem;">Unsupervised Learning (M4 Persona Discovery)</h4>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    {{ m1_data.taxonomy.unsupervised.definition }}
+                </p>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 0.75rem;">
+                    <strong>Placement Role:</strong> {{ m1_data.taxonomy.unsupervised.placement_role }}
+                </div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    {% for ex in m1_data.taxonomy.unsupervised.examples %}
+                    <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">{{ ex }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Reinforcement Learning -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 4px solid #ef4444;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-ban" style="color: #ef4444; font-size: 1.2rem;"></i>
+                    <h4 style="margin: 0; font-size: 1.05rem;">Reinforcement Learning (Out of Scope)</h4>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    {{ m1_data.taxonomy.reinforcement.definition }}
+                </p>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 0.75rem;">
+                    <strong>Placement Role:</strong> {{ m1_data.taxonomy.reinforcement.placement_role }}
+                </div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    {% for ex in m1_data.taxonomy.reinforcement.examples %}
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">{{ ex }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Training-Serving Boundary & Production Serving Architecture -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-server card-icon" style="color: var(--primary-500);"></i>
+            <h3>The Training-Serving Boundary & Production Serving Architecture</h3>
+        </div>
+        <span class="header-badge">Production Serving</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div>
+                <h4 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+                    Why Training-Serving Skew is the #1 Production Bug
+                </h4>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+                    Training-serving skew occurs when the code or data distributions used during model training diverge from live inference. 
+                    Examples include:
+                </p>
+                <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 1.2rem; line-height: 1.6;">
+                    <li><strong>Feature Leakage:</strong> Using semester 8 grades during training to predict an internship drive occurring in semester 6.</li>
+                    <li><strong>Inconsistent Scaling:</strong> Calculating mean and std globally across all 50k records rather than fitting only on the training split.</li>
+                    <li><strong>Unseen Encodings:</strong> A new city or university tier appearing in live traffic with no mapped one-hot dummy column.</li>
+                </ul>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <h4 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-plug" style="color: #6366f1;"></i> Integrated REST Serving Endpoints
+                </h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    Live predictions and audits are served through integrated low-latency JSON REST endpoints:
+                </p>
+                <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-family: monospace; color: var(--primary-600);">
+                    POST /api/predict -> Live student placement inference<br>
+                    POST /api/v1/trace-prediction -> End-to-end latency profiling<br>
+                    POST /api/v1/skew-audit -> Schema & bounds validation<br>
+                    GET  /api/v1/online-features/&lt;id&gt; -> Feature store entity lookup
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Downstream Curriculum Roadmap -->
+<div class="card" id="curriculum-scope" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-road card-icon" style="color: var(--accent-amber);"></i>
+            <h3>What This Course Owns vs Downstream Curriculum Scope</h3>
+        </div>
+        <span class="header-badge">Curriculum Alignment</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            {% for item in m1_data.curriculum_roadmap %}
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid {% if 'Current' in item.status %}var(--primary-500){% else %}var(--border-color){% endif %};">
+                <span class="badge" style="background: {% if 'Current' in item.status %}var(--primary-100); color: var(--primary-700);{% else %}var(--bg-surface); color: var(--text-secondary);{% endif %} margin-bottom: 0.5rem;">
+                    {{ item.status }}
+                </span>
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.4rem;">{{ item.course }}</h4>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0; line-height: 1.5;">{{ item.scope }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}

@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}M4: Unsupervised Learning | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-shapes" style="color: var(--primary-500);"></i>
+    <span>M4: Unsupervised Learning — Clustering, PCA & Anomalies</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3);">
+        <i class="fas fa-diagram-project"></i> Clustering, Dimensionality & Representation Learning
+    </span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero" style="margin-bottom: 2rem;">
+    <h1>Unsupervised Pattern Discovery & Hybrid Representation</h1>
+    <p>
+        Discover latent student personas, geometric clusters, and anomalous candidate profiles without target labels.
+        Master Lloyd's K-Means with silhouette selection, hierarchical dendrogram cutting, DBSCAN density tracing,
+        PCA standardization pitfalls, and using cluster assignments as engineered features for downstream supervised classifiers.
+    </p>
+</div>
+
+<!-- Section 1: K-Means Clustering, Elbow & Silhouette Analysis -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-chart-pie card-icon" style="color: #6366f1;"></i>
+            <h3>K-Means: Elbow Method, Silhouette Optimization & Student Personas</h3>
+        </div>
+        <span class="header-badge">Lloyd's Algorithm</span>
+    </div>
+    <div class="card-body">
+        
+        <!-- Elbow & Silhouette Table -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Evaluating Optimal K Clusters (Elbow vs Silhouette):</h4>
+        <div class="table-responsive" style="margin-bottom: 1.5rem;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Cluster Count (K)</th>
+                        <th>Within-Cluster Sum of Squares (Inertia)</th>
+                        <th>Silhouette Score</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in m4_data.kmeans_elbow_silhouette.elbow_and_silhouette %}
+                    <tr>
+                        <td><strong>K = {{ row.k }}</strong></td>
+                        <td>{{ row.inertia_wcss }}</td>
+                        <td style="color: {% if row.k == 3 %}#10b981; font-weight: 700;{% else %}var(--text-secondary);{% endif %}">
+                            {{ row.silhouette_score }}
+                        </td>
+                        <td>
+                            {% if row.k == 3 %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Optimal Silhouette Peak (K=3)</span>
+                            {% else %}
+                            <span style="color: var(--text-tertiary); font-size: 0.85rem;">Candidate K</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Student Personas Discovered -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Discovered Student Persona Profiles (K = 3):</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            {% for persona in m4_data.kmeans_elbow_silhouette.student_personas %}
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 4px solid {% if persona.cluster_id == 0 %}#10b981{% elif persona.cluster_id == 1 %}#6366f1{% else %}#ef4444{% endif %};">
+                <span class="badge" style="background: var(--bg-surface); color: var(--text-secondary); margin-bottom: 0.4rem;">{{ persona.pct_of_total }}% of Student Body ({{ persona.student_count }} students)</span>
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">{{ persona.name }}</h4>
+                <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Average CGPA:</strong> {{ persona.avg_cgpa }} / 10.0</li>
+                    <li><strong>Average Coding Benchmark:</strong> {{ persona.avg_coding }} / 100</li>
+                    <li><strong>Average Internships:</strong> {{ persona.avg_internships }}</li>
+                    <li><strong>Historical Placement Rate:</strong> <strong style="color: #10b981;">{{ persona.placement_rate_pct }}%</strong></li>
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Initialization Benchmark -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+                <strong>K-Means++ Init:</strong><br>
+                Fit Time: {{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.kmeans_plus_plus.fit_time_ms }} ms | Inertia: {{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.kmeans_plus_plus.inertia }}<br>
+                <span style="color: var(--text-tertiary);">{{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.kmeans_plus_plus.strategy }}</span>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+                <strong>Random Init:</strong><br>
+                Fit Time: {{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.random_init.fit_time_ms }} ms | Inertia: {{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.random_init.inertia }}<br>
+                <span style="color: var(--text-tertiary);">{{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.random_init.strategy }}</span>
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+                <strong>Mini-Batch K-Means:</strong><br>
+                Fit Time: {{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.minibatch_kmeans.fit_time_ms }} ms (Fastest!)<br>
+                <span style="color: var(--text-tertiary);">{{ m4_data.kmeans_elbow_silhouette.initialization_benchmark.minibatch_kmeans.strategy }}</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 2: Hierarchical Clustering & Dendrogram Merges -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-sitemap card-icon" style="color: var(--accent-purple);"></i>
+            <h3>Hierarchical Agglomerative Clustering & Linkage Selection</h3>
+        </div>
+        <span class="header-badge">Bottom-Up Dendrogram</span>
+    </div>
+    <div class="card-body">
+        
+        <div class="table-responsive" style="margin-bottom: 1.5rem;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Linkage Strategy</th>
+                        <th>Silhouette Score</th>
+                        <th>Fit Time (ms)</th>
+                        <th>Geometric Property</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in m4_data.hierarchical_clustering.linkage_comparison %}
+                    <tr>
+                        <td><strong>{{ row.linkage | capitalize }} Linkage</strong></td>
+                        <td style="color: {% if row.linkage == 'ward' %}#10b981; font-weight: 700;{% else %}var(--text-secondary);{% endif %}">{{ row.silhouette }}</td>
+                        <td>{{ row.fit_time_ms }} ms</td>
+                        <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ row.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Sample Dendrogram Node Merges (Ward's Minimum Variance):</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;">
+                {% for node in m4_data.hierarchical_clustering.dendrogram_sample_merges %}
+                <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: var(--radius-sm); font-size: 0.8rem; border-top: 2px solid var(--accent-purple);">
+                    Step {{ node.step }}: Clusters {{ node.cluster_a }} &amp; {{ node.cluster_b }}<br>
+                    <strong>Merge Dist: {{ node.merge_distance }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-top: 0.75rem; margin-bottom: 0;">
+                {{ m4_data.hierarchical_clustering.dendrogram_interpretation }}
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 3: DBSCAN Density Clustering & Non-Convex Clusters -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-bullseye card-icon" style="color: #ef4444;"></i>
+            <h3>DBSCAN Density-Based Clustering & Outlier Discovery</h3>
+        </div>
+        <span class="header-badge">Density Reachability</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            {% for scan in m4_data.dbscan_clustering.dbscan_experiments %}
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 3px solid #ef4444;">
+                <span class="badge" style="background: var(--bg-surface); color: var(--text-primary); margin-bottom: 0.4rem;">&epsilon; = {{ scan.eps }} | minPts = {{ scan.min_samples }}</span>
+                <h4 style="font-size: 1.1rem; margin: 0.3rem 0;">Clusters: {{ scan.clusters_discovered }}</h4>
+                <div style="font-size: 0.85rem; color: #ef4444; font-weight: 600;">Noise (Outliers): {{ scan.noise_points }} ({{ scan.noise_pct }}%)</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm);">
+                <strong>Core Point:</strong> {{ m4_data.dbscan_clustering.core_mechanics.core_point }}
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm);">
+                <strong>Border Point:</strong> {{ m4_data.dbscan_clustering.core_mechanics.border_point }}
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm);">
+                <strong>Noise Point:</strong> {{ m4_data.dbscan_clustering.core_mechanics.noise_point }}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 4: PCA Scree Plot & Standardization Pitfall -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-compress card-icon" style="color: #06b6d4;"></i>
+            <h3>Dimensionality Reduction: PCA & The Standardization Pitfall</h3>
+        </div>
+        <span class="header-badge">Eigendecomposition</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <!-- Standardized Scree -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: #10b981;">
+                    <i class="fas fa-check"></i> Standardized PCA (Production Best Practice)
+                </h4>
+                <div class="table-responsive">
+                    <table class="data-table" style="font-size: 0.82rem;">
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Explained Variance</th>
+                                <th>Cumulative Variance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in m4_data.pca_scree_and_pitfall.pca_standardized_scree %}
+                            <tr>
+                                <td><strong>{{ comp.component }}</strong></td>
+                                <td>{{ (comp.explained_variance * 100) | round(1) }}%</td>
+                                <td>{{ (comp.cumulative_variance * 100) | round(1) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- The Pitfall -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #ef4444;">
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: #ef4444;">
+                    <i class="fas fa-triangle-exclamation"></i> The Pitfall: Unstandardized PCA
+                </h4>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #ef4444; margin-bottom: 0.5rem;">
+                    PC1 Hijacked by {{ (m4_data.pca_scree_and_pitfall.pca_unscaled_pitfall.first_pc_variance_unscaled * 100) | round(1) }}% Variance!
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                    {{ m4_data.pca_scree_and_pitfall.pca_unscaled_pitfall.pitfall_explanation }}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 5: Practical Hybrid Pipeline (Cluster Labels as Supervised Features) -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-wand-magic-sparkles card-icon" style="color: #10b981;"></i>
+            <h3>Practical Pipeline: Unsupervised Clusters as Engineered Features</h3>
+        </div>
+        <span class="header-badge">Hybrid Pipeline Lift</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <span style="font-size: 0.8rem; color: var(--text-tertiary);">Baseline Model</span>
+                <h4 style="font-size: 1.1rem; margin: 0.2rem 0;">Standard Linear Model</h4>
+                <div style="font-size: 1rem; color: var(--text-primary); margin-top: 0.5rem;">
+                    Accuracy: <strong>{{ (m4_data.hybrid_pipeline.baseline_supervised.accuracy * 100) | round(2) }}%</strong> | ROC-AUC: <strong>{{ m4_data.hybrid_pipeline.baseline_supervised.roc_auc }}</strong>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #10b981;">
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Hybrid Pipeline (+4 Cluster One-Hot Features)</span>
+                <h4 style="font-size: 1.1rem; margin: 0.2rem 0; color: #10b981;">Cluster-Augmented Classifier</h4>
+                <div style="font-size: 1rem; color: #10b981; margin-top: 0.5rem;">
+                    Accuracy: <strong>{{ (m4_data.hybrid_pipeline.hybrid_pipeline.accuracy * 100) | round(2) }}%</strong> | ROC-AUC: <strong>{{ m4_data.hybrid_pipeline.hybrid_pipeline.roc_auc }}</strong>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; margin-left: 0.5rem;">
+                        +{{ m4_data.hybrid_pipeline.hybrid_pipeline.accuracy_lift_pct }}% Lift!
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            {{ m4_data.hybrid_pipeline.takeaway }}
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}

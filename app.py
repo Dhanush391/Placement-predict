@@ -49,6 +49,14 @@ from load_data import (
     get_plot_data
 )
 import supervised_models
+import modules.m1_lifecycle as m1_module
+import modules.m2_linear_models as m2_module
+import modules.m3_tree_models as m3_module
+import modules.m4_unsupervised as m4_module
+import modules.m5_evaluation_calibration as m5_module
+import modules.m6_ml_engineering as m6_module
+
+m_cache = {}
 
 app = Flask(__name__, template_folder="Templates", static_folder="Static")
 
@@ -714,9 +722,78 @@ def api_predict():
         return jsonify({"status": "error", "error": str(e)}), 400
 
 @app.route("/ml-lifecycle")
+@app.route("/m1-lifecycle")
 @app.route("/docs")
 def ml_lifecycle():
-    return render_template("ml_lifecycle.html", active="ml-lifecycle")
+    force = request.args.get("refresh", "").lower() in ["true", "1", "yes"]
+    if force or "m1" not in m_cache:
+        m_cache["m1"] = m1_module.get_m1_system_overview()
+    return render_template("ml_lifecycle.html", active="ml-lifecycle", m1_data=m_cache["m1"])
+
+@app.route("/m2-linear-models")
+def m2_linear_models_view():
+    force = request.args.get("refresh", "").lower() in ["true", "1", "yes"]
+    if force or "m2" not in m_cache:
+        m_cache["m2"] = m2_module.get_m2_complete_overview()
+    return render_template("m2_linear_models.html", active="m2-linear-models", m2_data=m_cache["m2"])
+
+@app.route("/m3-tree-models")
+def m3_tree_models_view():
+    force = request.args.get("refresh", "").lower() in ["true", "1", "yes"]
+    if force or "m3" not in m_cache:
+        m_cache["m3"] = m3_module.get_m3_complete_overview()
+    return render_template("m3_tree_models.html", active="m3-tree-models", m3_data=m_cache["m3"])
+
+@app.route("/m4-unsupervised")
+def m4_unsupervised_view():
+    force = request.args.get("refresh", "").lower() in ["true", "1", "yes"]
+    if force or "m4" not in m_cache:
+        m_cache["m4"] = m4_module.get_m4_complete_overview()
+    return render_template("m4_unsupervised.html", active="m4-unsupervised", m4_data=m_cache["m4"])
+
+@app.route("/m5-evaluation")
+def m5_evaluation_view():
+    force = request.args.get("refresh", "").lower() in ["true", "1", "yes"]
+    if force or "m5" not in m_cache:
+        m_cache["m5"] = m5_module.get_m5_complete_overview()
+    return render_template("m5_evaluation.html", active="m5-evaluation", m5_data=m_cache["m5"])
+
+@app.route("/m6-engineering")
+def m6_engineering_view():
+    scenario = request.args.get("scenario", "normal")
+    force = request.args.get("refresh", "").lower() in ["true", "1", "yes"]
+    cache_key = f"m6_{scenario}"
+    if force or cache_key not in m_cache:
+        m_cache[cache_key] = m6_module.get_m6_complete_overview(drift_scenario=scenario)
+    return render_template("m6_engineering.html", active="m6-engineering", m6_data=m_cache[cache_key])
+
+@app.route("/api/v1/trace-prediction", methods=["POST"])
+def api_trace_prediction():
+    try:
+        payload = request.get_json(force=True) if request.is_json else request.form.to_dict()
+        trace = m1_module.trace_prediction_request(payload)
+        return jsonify({"status": "success", "trace": trace})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 400
+
+@app.route("/api/v1/skew-audit", methods=["POST"])
+def api_skew_audit():
+    try:
+        payload = request.get_json(force=True) if request.is_json else request.form.to_dict()
+        detector = m6_module.TrainingServingSkewDetector()
+        audit = detector.audit_payload(payload)
+        return jsonify(audit)
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 400
+
+@app.route("/api/v1/online-features/<student_id>", methods=["GET"])
+def api_online_features(student_id):
+    try:
+        fs = m6_module.FeatureStoreSimulator()
+        features = fs.get_online_features(student_id)
+        return jsonify(features)
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 400
 
 @app.route("/api/plot-data", methods=["GET", "POST"])
 def api_plot_data():

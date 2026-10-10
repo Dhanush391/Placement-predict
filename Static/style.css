@@ -26,17 +26,17 @@
     /* Clean White / Light Neutrals */
     --bg-app: #f8fafc;
     --bg-surface: #ffffff;
-    --bg-surface-elevated: #f1f5f9;
+    --bg-surface-elevated: #ffffff;
     --bg-card: #ffffff;
     --bg-card-hover: #f8fafc;
     --bg-input: #ffffff;
     
     --text-primary: #0f172a;
-    --text-secondary: #475569;
+    --text-secondary: #334155;
     --text-muted: #64748b;
     --text-inverse: #ffffff;
     
-    --border-subtle: #e2e8f0;
+    --border-subtle: #cbd5e1;
     --border-focus: #4f46e5;
     
     /* Shadows */
@@ -820,43 +820,128 @@ a {
 }
 
 .control-label {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    color: #1e293b;
     display: flex;
     align-items: center;
     gap: 0.4rem;
 }
 
+/* Explicit Crisp Border Properties for Inputs & Selects under Live Prediction & System */
+.form-control,
+input[type="text"].form-control,
+input[type="number"].form-control,
+input[type="email"].form-control,
+input.form-control,
+select.form-control,
 .form-select {
     width: 100%;
-    padding: 0.7rem 1rem;
+    padding: 0.72rem 1rem;
     background-color: #ffffff;
-    border: 1px solid #cbd5e1;
+    border: 1.5px solid #94a3b8;
     border-radius: var(--radius-md);
-    color: var(--text-primary);
-    font-size: 0.9rem;
+    color: #0f172a;
+    font-size: 0.92rem;
     font-weight: 500;
     outline: none;
-    cursor: pointer;
     transition: all var(--transition-fast);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.form-select {
+    cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 16px;
 }
 
+.form-control:hover,
 .form-select:hover {
-    border-color: #94a3b8;
-    background-color: #f8fafc;
+    border-color: #64748b;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
+.form-control:focus,
 .form-select:focus {
-    border-color: var(--primary-600);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    background-color: #ffffff;
+}
+
+/* Dedicated Crisp Border Properties for Live Prediction Form Inputs & Selects */
+#predictionForm input.form-control,
+#predictionForm select.form-select,
+#predictionForm input,
+#predictionForm select {
+    border: 1.5px solid #94a3b8 !important;
+    background-color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 0.72rem 1rem !important;
+    font-size: 0.92rem !important;
+    color: #0f172a !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+#predictionForm input.form-control:hover,
+#predictionForm select.form-select:hover {
+    border-color: #475569 !important;
+}
+
+#predictionForm input.form-control:focus,
+#predictionForm select.form-select:focus {
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.22) !important;
+    outline: none !important;
+}
+
+/* Sidebar Accordion Navigation Styles */
+.accordion-nav-toggle {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+}
+
+.accordion-nav-toggle:hover {
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.accordion-nav-toggle.active-group {
+    background: var(--primary-50);
+    color: var(--primary-600);
+    border-color: var(--primary-200);
+}
+
+.chevron-indicator {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    transition: transform 0.25s ease;
+}
+
+.chevron-indicator.rotated {
+    transform: rotate(180deg);
+    color: var(--primary-600);
+}
+
+.accordion-nav-list {
+    margin-top: 0.25rem;
 }
 
 .form-select optgroup {

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}M3: Tree-Based Models | Placement Prediction{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-tree" style="color: var(--primary-500);"></i>
+    <span>M3: Supervised Learning — Tree-Based Models</span>
+{% endblock %}
+
+{% block page_badge %}
+    <span class="header-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+        <i class="fas fa-sitemap"></i> CART, Pruning, Ensembles & Industrial Boosters
+    </span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="welcome-hero" style="margin-bottom: 2rem;">
+    <h1>Tree-Based Models, Ensembles & Boosting Workhorses</h1>
+    <p>
+        From single CART decision trees and Cost-Complexity Pruning (CCP) to the variance reduction of Random Forests
+        and modern industrial gradient boosters (XGBoost & LightGBM). Examine feature importance through MDI, permutation,
+        and SHAP lenses, and understand why trees routinely beat deep neural networks on tabular datasets.
+    </p>
+</div>
+
+<!-- Section 1: Decision Trees & Cost-Complexity Pruning -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-scissors card-icon" style="color: var(--primary-500);"></i>
+            <h3>Decision Trees & Cost-Complexity Pruning (CCP)</h3>
+        </div>
+        <span class="header-badge">CART & Pruning</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <!-- Criteria comparison -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Splitting Criteria Comparison</h4>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.75rem;">
+                    <strong>Gini Impurity:</strong> <code>{{ m3_data.dt_and_pruning.criteria_comparison.gini_formula }}</code><br>
+                    Test Accuracy: <strong>{{ m3_data.dt_and_pruning.criteria_comparison.gini_test_accuracy * 100 }}%</strong>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.75rem;">
+                    <strong>Information Entropy:</strong> <code>{{ m3_data.dt_and_pruning.criteria_comparison.entropy_formula }}</code><br>
+                    Test Accuracy: <strong>{{ m3_data.dt_and_pruning.criteria_comparison.entropy_test_accuracy * 100 }}%</strong>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-tertiary); margin: 0;">
+                    {{ m3_data.dt_and_pruning.criteria_comparison.note }}
+                </p>
+            </div>
+
+            <!-- CCP Objective -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent-purple);">
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent-purple);">Cost-Complexity Pruning Objective</h4>
+                <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+                    {{ m3_data.dt_and_pruning.cost_complexity_pruning.objective }}
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                    {{ m3_data.dt_and_pruning.cost_complexity_pruning.concept }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Alpha Path Table -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Effective Alpha (&alpha;<sub>eff</sub>) Pruning Path:</h4>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Alpha (&alpha;<sub>eff</sub>)</th>
+                        <th>Tree Depth</th>
+                        <th>Node Count</th>
+                        <th>Train Accuracy</th>
+                        <th>Test Accuracy</th>
+                        <th>Bias-Variance State</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in m3_data.dt_and_pruning.cost_complexity_pruning.alpha_curve %}
+                    <tr>
+                        <td><strong>{{ row.ccp_alpha }}</strong></td>
+                        <td>{{ row.depth }}</td>
+                        <td>{{ row.node_count }}</td>
+                        <td>{{ (row.train_accuracy * 100) | round(1) }}%</td>
+                        <td style="font-weight: 600; color: #10b981;">{{ (row.test_accuracy * 100) | round(1) }}%</td>
+                        <td>
+                            {% if loop.first %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">Overfitted (High Variance)</span>
+                            {% elif loop.last %}
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">Underfitted (High Bias)</span>
+                            {% else %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Optimal Regularization</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 2: Random Forests & OOB Error Convergence -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-network-wired card-icon" style="color: #10b981;"></i>
+            <h3>Random Forest: Bagging, OOB Validation & Variance Reduction</h3>
+        </div>
+        <span class="header-badge">Variance Reduction</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
+            <h4 style="font-size: 1rem; margin-bottom: 0.4rem; color: #10b981;">The Variance-Reduction Theorem</h4>
+            <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+                {{ m3_data.rf_and_variance.variance_reduction_theorem.formula }}
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                {{ m3_data.rf_and_variance.variance_reduction_theorem.explanation }}
+            </p>
+        </div>
+
+        <!-- RF Progression Table -->
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Out-of-Bag (OOB) vs Test Error Convergence:</h4>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Number of Trees (B)</th>
+                        <th>OOB Accuracy</th>
+                        <th>OOB Error Rate</th>
+                        <th>Held-Out Test Accuracy</th>
+                        <th>Test Error Rate</th>
+                        <th>Fit Time (ms)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in m3_data.rf_and_variance.rf_progression %}
+                    <tr>
+                        <td><strong>{{ row.n_estimators }} Trees</strong></td>
+                        <td>{{ (row.oob_accuracy * 100) | round(2) }}%</td>
+                        <td>{{ row.oob_error }}</td>
+                        <td style="color: #10b981; font-weight: 600;">{{ (row.test_accuracy * 100) | round(2) }}%</td>
+                        <td>{{ row.test_error }}</td>
+                        <td>{{ row.fit_time_ms }} ms</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 3: XGBoost vs LightGBM Industrial Workhorses -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-bolt card-icon" style="color: #f59e0b;"></i>
+            <h3>Modern Industrial Workhorses: XGBoost vs LightGBM</h3>
+        </div>
+        <span class="header-badge">Gradient Boosting</span>
+    </div>
+    <div class="card-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <!-- XGBoost Card -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #f59e0b;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1.05rem;">{{ m3_data.xgboost_vs_lightgbm.xgboost.name }}</h4>
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">{{ m3_data.xgboost_vs_lightgbm.xgboost.fit_time_ms }} ms</span>
+                </div>
+                <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Growth:</strong> {{ m3_data.xgboost_vs_lightgbm.xgboost.growth_strategy }}</li>
+                    <li><strong>Splitting:</strong> {{ m3_data.xgboost_vs_lightgbm.xgboost.split_mechanism }}</li>
+                    <li><strong>Accuracy:</strong> <strong>{{ (m3_data.xgboost_vs_lightgbm.xgboost.accuracy * 100) | round(2) }}%</strong></li>
+                    <li><strong>ROC-AUC:</strong> <strong>{{ m3_data.xgboost_vs_lightgbm.xgboost.roc_auc }}</strong></li>
+                    <li><strong>Regularization:</strong> {{ m3_data.xgboost_vs_lightgbm.xgboost.regularization }}</li>
+                </ul>
+            </div>
+
+            <!-- LightGBM Card -->
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-top: 3px solid #06b6d4;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1.05rem;">{{ m3_data.xgboost_vs_lightgbm.lightgbm.name }}</h4>
+                    <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">{{ m3_data.xgboost_vs_lightgbm.lightgbm.fit_time_ms }} ms</span>
+                </div>
+                <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Growth:</strong> {{ m3_data.xgboost_vs_lightgbm.lightgbm.growth_strategy }}</li>
+                    <li><strong>Splitting:</strong> {{ m3_data.xgboost_vs_lightgbm.lightgbm.split_mechanism }}</li>
+                    <li><strong>Accuracy:</strong> <strong>{{ (m3_data.xgboost_vs_lightgbm.lightgbm.accuracy * 100) | round(2) }}%</strong></li>
+                    <li><strong>ROC-AUC:</strong> <strong>{{ m3_data.xgboost_vs_lightgbm.lightgbm.roc_auc }}</strong></li>
+                    <li><strong>Regularization:</strong> {{ m3_data.xgboost_vs_lightgbm.lightgbm.regularization }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+            <strong>Architectural Contrast:</strong> {{ m3_data.xgboost_vs_lightgbm.architectural_contrast }}
+        </p>
+
+    </div>
+</div>
+
+<!-- Section 4: Feature Importance Triad (Gini vs Permutation vs SHAP) -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-magnifying-glass-chart card-icon" style="color: var(--accent-purple);"></i>
+            <h3>The Feature Importance Triad: Gini (MDI) vs Permutation vs SHAP</h3>
+        </div>
+        <span class="header-badge">Model Interpretability</span>
+    </div>
+    <div class="card-body">
+        
+        <div class="table-responsive" style="margin-bottom: 1.5rem;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Gini Impurity (MDI)</th>
+                        <th>Permutation Importance (Test Set)</th>
+                        <th>SHAP Tree Attribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in m3_data.feature_importance.triad_table %}
+                    <tr>
+                        <td><strong>{{ row.feature }}</strong></td>
+                        <td>{{ row.gini_mdi_importance }}</td>
+                        <td style="color: #10b981; font-weight: 600;">{{ row.permutation_importance }}</td>
+                        <td style="color: #6366f1; font-weight: 600;">{{ row.shap_attribution_preview }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid #ef4444; font-size: 0.8rem; color: var(--text-secondary);">
+                <strong style="color: #ef4444;">Gini / MDI Pitfall:</strong><br>
+                {{ m3_data.feature_importance.methodology_critique.gini_mdi_pitfall }}
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid #10b981; font-size: 0.8rem; color: var(--text-secondary);">
+                <strong style="color: #10b981;">Permutation Advantage:</strong><br>
+                {{ m3_data.feature_importance.methodology_critique.permutation_advantage }}
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid #6366f1; font-size: 0.8rem; color: var(--text-secondary);">
+                <strong style="color: #6366f1;">SHAP Attribution Axioms:</strong><br>
+                {{ m3_data.feature_importance.methodology_critique.shap_gold_standard }}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Section 5: Why Trees Beat Neural Networks on Tabular Data -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-trophy card-icon" style="color: #f59e0b;"></i>
+            <h3>The Kaggle Reality: Why Tree Ensembles Routinely Beat Neural Networks</h3>
+        </div>
+        <span class="header-badge">Tabular Domain Realities</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+            {% for r in m3_data.trees_vs_deep_learning.reasons %}
+            <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md);">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">{{ r.property }}</h4>
+                <div style="font-size: 0.85rem; color: #10b981; margin-bottom: 0.5rem;">
+                    <strong><i class="fas fa-check"></i> Trees:</strong> {{ r.trees }}
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-tertiary);">
+                    <strong><i class="fas fa-xmark"></i> Deep Learning:</strong> {{ r.deep_learning }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Section 6: Worked Example Head-to-Head Benchmark -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-code-compare card-icon" style="color: #10b981;"></i>
+            <h3>Worked Example: Gradient-Boosted Tree vs Linear Baseline</h3>
+        </div>
+        <span class="header-badge">Direct Benchmark</span>
+    </div>
+    <div class="card-body">
+        
+        <div class="table-responsive" style="margin-bottom: 1rem;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Model Family</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1 Score</th>
+                        <th>ROC-AUC</th>
+                        <th>Fit Latency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>{{ m3_data.worked_example_head_to_head.linear_baseline.model_name }}</strong></td>
+                        <td>{{ (m3_data.worked_example_head_to_head.linear_baseline.accuracy * 100) | round(1) }}%</td>
+                        <td>{{ m3_data.worked_example_head_to_head.linear_baseline.precision }}</td>
+                        <td>{{ m3_data.worked_example_head_to_head.linear_baseline.recall }}</td>
+                        <td>{{ m3_data.worked_example_head_to_head.linear_baseline.f1_score }}</td>
+                        <td>{{ m3_data.worked_example_head_to_head.linear_baseline.roc_auc }}</td>
+                        <td>{{ m3_data.worked_example_head_to_head.linear_baseline.fit_time_ms }} ms</td>
+                    </tr>
+                    <tr style="background: rgba(16, 185, 129, 0.05);">
+                        <td><strong>{{ m3_data.worked_example_head_to_head.gradient_boosted_tree.model_name }}</strong></td>
+                        <td style="color: #10b981; font-weight: 700;">{{ (m3_data.worked_example_head_to_head.gradient_boosted_tree.accuracy * 100) | round(1) }}%</td>
+                        <td style="color: #10b981; font-weight: 700;">{{ m3_data.worked_example_head_to_head.gradient_boosted_tree.precision }}</td>
+                        <td style="color: #10b981; font-weight: 700;">{{ m3_data.worked_example_head_to_head.gradient_boosted_tree.recall }}</td>
+                        <td style="color: #10b981; font-weight: 700;">{{ m3_data.worked_example_head_to_head.gradient_boosted_tree.f1_score }}</td>
+                        <td style="color: #10b981; font-weight: 700;">{{ m3_data.worked_example_head_to_head.gradient_boosted_tree.roc_auc }}</td>
+                        <td>{{ m3_data.worked_example_head_to_head.gradient_boosted_tree.fit_time_ms }} ms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            {{ m3_data.worked_example_head_to_head.benchmark_summary }}
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}
